@@ -44,7 +44,7 @@ const EXPECTED: Record<VendorProviderId, { baseUrl: string; model: string }> = {
     minimax: { baseUrl: 'https://api.minimax.cn/v1', model: 'MiniMax-M3.1-Flash' },
     glm: { baseUrl: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-5.3-flash' },
     'glm-coding': { baseUrl: 'https://open.bigmodel.cn/api/coding/paas/v4', model: 'glm-5.3-flash' },
-    magpie: { baseUrl: 'http://127.0.0.1:3425/v1', model: 'group/smart-split' },
+    'local-ai': { baseUrl: '', model: '' },
     deepseek: { baseUrl: 'https://api.deepseek.com', model: 'deepseek-v4-flash' },
     kimi: { baseUrl: 'https://api.moonshot.cn/v1', model: 'kimi-k3.1-pro' },
     qwen: { baseUrl: 'https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1', model: 'qwen3.8-max' },
@@ -82,6 +82,10 @@ describe('国产大模型渠道预设', () => {
     });
 });
 
+const customConfig = (id: VendorProviderId) => EXPECTED[id].baseUrl ? {} : { baseUrl: 'http://127.0.0.1:3425/v1', model: 'local-model' };
+const effectiveBaseUrl = (id: VendorProviderId) => EXPECTED[id].baseUrl || 'http://127.0.0.1:3425/v1';
+const effectiveModel = (id: VendorProviderId) => EXPECTED[id].model || 'local-model';
+
 describe.each(VENDOR_PROVIDER_IDS)('%s 渠道', (id) => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -98,15 +102,15 @@ describe.each(VENDOR_PROVIDER_IDS)('%s 渠道', (id) => {
     });
 
     it('选中该渠道时通过 OpenAI 兼容接口调用官方地址和默认模型', async () => {
-        mocks.getAppConfig.mockReturnValue({ aiProvider: id, [id]: { apiKey: 'vendor-key' } });
+        mocks.getAppConfig.mockReturnValue({ aiProvider: id, [id]: { apiKey: 'vendor-key', ...customConfig(id) } });
         mocks.create.mockResolvedValue({ choices: [{ message: { content: '{"tags": ["加法"], "difficultyStars": 1}' }, finish_reason: 'stop' }] });
 
         const service = await getAIService({ userId: 'u1', kind: 'retag' });
         await service.suggestKnowledgeTags({ questionText: '1+1=?', subject: '数学', allowedTags: ['加法'] });
 
         expect(service.constructor.name).toBe('OpenAIProvider');
-        expect(mocks.openaiOptions[0]).toMatchObject({ apiKey: 'vendor-key', baseURL: EXPECTED[id].baseUrl });
-        expect(mocks.create.mock.calls[0][0].model).toBe(EXPECTED[id].model);
+        expect(mocks.openaiOptions[0]).toMatchObject({ apiKey: 'vendor-key', baseURL: effectiveBaseUrl(id) });
+        expect(mocks.create.mock.calls[0][0].model).toBe(effectiveModel(id));
     });
 
     it('未填写 API Key 时报认证错误', async () => {
@@ -115,13 +119,13 @@ describe.each(VENDOR_PROVIDER_IDS)('%s 渠道', (id) => {
     });
 
     it('模型列表默认请求官方地址', async () => {
-        mocks.fetch.mockResolvedValue({ ok: true, json: async () => ({ data: [{ id: EXPECTED[id].model, owned_by: id }] }) });
+        mocks.fetch.mockResolvedValue({ ok: true, json: async () => ({ data: [{ id: effectiveModel(id), owned_by: id }] }) });
 
-        const response = await listModels(post('http://localhost/api/ai/models', { provider: id, apiKey: 'k' }));
+        const response = await listModels(post('http://localhost/api/ai/models', { provider: id, apiKey: 'k', ...customConfig(id) }));
         const body = await response.json();
 
-        expect(mocks.fetch.mock.calls[0][0]).toBe(`${EXPECTED[id].baseUrl}/models`);
-        expect(body.models).toEqual([{ id: EXPECTED[id].model, name: EXPECTED[id].model, owned_by: id }]);
+        expect(mocks.fetch.mock.calls[0][0]).toBe(`${effectiveBaseUrl(id)}/models`);
+        expect(body.models).toEqual([{ id: effectiveModel(id), name: effectiveModel(id), owned_by: id }]);
     });
 
     it('连接测试未填写模型时报告默认模型', async () => {
@@ -129,11 +133,11 @@ describe.each(VENDOR_PROVIDER_IDS)('%s 渠道', (id) => {
             choices: [{ message: { content: '<question_text>2+3=?</question_text><answer_text>5</answer_text><analysis>加法</analysis>' }, finish_reason: 'stop' }],
         });
 
-        const response = await testConnection(post('http://localhost/api/ai/test', { provider: id, apiKey: 'k' }));
+        const response = await testConnection(post('http://localhost/api/ai/test', { provider: id, apiKey: 'k', ...customConfig(id) }));
         const data = await response.json();
 
-        expect(data).toMatchObject({ success: true, visionSupport: true, modelInfo: EXPECTED[id].model });
-        expect(mocks.openaiOptions[0]).toMatchObject({ baseURL: EXPECTED[id].baseUrl });
+        expect(data).toMatchObject({ success: true, visionSupport: true, modelInfo: effectiveModel(id) });
+        expect(mocks.openaiOptions[0]).toMatchObject({ baseURL: effectiveBaseUrl(id) });
     });
 
     it('连接测试失败时返回服务商的原始报错', async () => {

@@ -173,6 +173,12 @@ function createProviderService(provider: AiProviderId): ChannelService {
         // 国产大模型官方渠道；未知取值回退到默认的 MiniMax
         const vendor = isVendorProvider(provider) ? provider : 'minimax';
         const vendorConfig = resolveVendorConfig(vendor, config[vendor]);
+        if (!vendorConfig.baseUrl) {
+            throw new Error(`AI_AUTH_ERROR: BASE_URL is required for provider ${vendor}`);
+        }
+        if (!vendorConfig.model) {
+            throw new Error(`AI_AUTH_ERROR: MODEL is required for provider ${vendor}`);
+        }
         logger.info({ vendor: VENDOR_PRESETS[vendor].name, model: vendorConfig.model }, 'Using vendor provider (OpenAI compatible)');
         return { service: new OpenAIProvider(vendorConfig), key: concurrencyKey(vendor, vendorConfig.baseUrl, vendorConfig.model), provider: vendor };
     }

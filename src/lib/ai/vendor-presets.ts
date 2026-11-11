@@ -42,12 +42,12 @@ export const VENDOR_PRESETS = {
         consoleUrl: 'https://bigmodel.cn/coding-plan',
         docs: { cn: 'https://docs.bigmodel.cn/cn/coding-plan/latest-model', intl: 'https://docs.z.ai/devpack/quick-start', apiKey: 'https://docs.bigmodel.cn/cn/coding-plan/notice/api-key-management', models: 'https://docs.bigmodel.cn/cn/coding-plan/overview' },
     },
-    magpie: {
-        name: 'Magpie 本地网关',
-        nameEn: 'Magpie gateway',
-        baseUrl: 'http://127.0.0.1:3425/v1',
-        model: 'group/smart-split',
-        envPrefix: 'MAGPIE',
+    'local-ai': {
+        name: '本地 AI',
+        nameEn: 'Local AI',
+        baseUrl: '',
+        model: '',
+        envPrefix: 'LOCAL_AI',
         consoleUrl: 'https://github.com/yetone/magpie',
         docs: { cn: 'https://github.com/yetone/magpie', apiKey: 'https://github.com/yetone/magpie', models: 'https://github.com/yetone/magpie' },
     },
