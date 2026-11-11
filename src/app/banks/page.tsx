@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { apiClient } from "@/lib/api-client";
 import { frontendLogger } from "@/lib/frontend-logger";
 import { usePageTitle } from "@/lib/page-title";
+import { formatGradeRange } from "@/lib/question-bank/grade";
 import type { QuestionBankSummary } from "@/lib/question-bank/types";
 import type { Notebook } from "@/types/api";
 
@@ -82,6 +83,7 @@ export default function BanksPage() {
                                     <p className="mt-1 text-xs text-muted-foreground">
                                         {t.banks.stageNames[STAGE_KEYS[bank.stage] ?? "primary"]}
                                         {bank.subjectKey ? ` · ${t.tags.subjects[bank.subjectKey as keyof typeof t.tags.subjects] ?? bank.subjectKey}` : ""}
+                                        {formatGradeRange(bank.gradeRange) ? ` · ${formatGradeRange(bank.gradeRange)}` : ""}
                                         {` · ${bank.questionCount} ${t.banks.questions}`}
                                     </p>
                                     <p className="mt-1 truncate text-xs text-muted-foreground">
