@@ -24,6 +24,7 @@ export function VendorSettings({ provider, value, onChange }: VendorSettingsProp
     const baseUrlHints: Partial<Record<VendorProviderId, string>> = {
         qwen: t.settings?.ai?.qwenBaseUrlHint,
         "glm-coding": t.settings?.ai?.glmCodingBaseUrlHint,
+        magpie: t.settings?.ai?.magpieBaseUrlHint,
         stepfun: t.settings?.ai?.stepfunBaseUrlHint,
         volcengine: t.settings?.ai?.volcengineBaseUrlHint,
         "volcengine-agent": t.settings?.ai?.volcengineAgentBaseUrlHint,

@@ -42,6 +42,15 @@ export const VENDOR_PRESETS = {
         consoleUrl: 'https://bigmodel.cn/coding-plan',
         docs: { cn: 'https://docs.bigmodel.cn/cn/coding-plan/latest-model', intl: 'https://docs.z.ai/devpack/quick-start', apiKey: 'https://docs.bigmodel.cn/cn/coding-plan/notice/api-key-management', models: 'https://docs.bigmodel.cn/cn/coding-plan/overview' },
     },
+    magpie: {
+        name: 'Magpie 本地网关',
+        nameEn: 'Magpie gateway',
+        baseUrl: 'http://127.0.0.1:3425/v1',
+        model: 'group/smart-split',
+        envPrefix: 'MAGPIE',
+        consoleUrl: 'http://127.0.0.1:3425/v1/models',
+        docs: { cn: 'http://127.0.0.1:3425/v1/models', apiKey: 'http://127.0.0.1:3425/v1/models', models: 'http://127.0.0.1:3425/v1/models' },
+    },
     deepseek: {
         name: 'DeepSeek',
         nameEn: 'DeepSeek',
