@@ -95,6 +95,7 @@ async function handlePostInner(req: Request, { user }: AuthenticatedContext) {
                 errorItem: {
                     id: errorItemWithSubject.id,
                     questionText: errorItemWithSubject.questionText,
+                    gradeSemester: errorItemWithSubject.gradeSemester,
                     subject: errorItemWithSubject.subject
                         ? {
                             name: errorItemWithSubject.subject.name,

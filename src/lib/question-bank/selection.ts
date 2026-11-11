@@ -10,6 +10,7 @@ import type { NotebookStage, NotebookSubject } from "@/lib/notebook-scope";
 import type { ParsedQuestion } from "@/lib/ai";
 import type { DifficultyLevel } from "@/lib/ai/types";
 import { bankQuestionGradeSemester, composeBankQuestionText } from "@/lib/question-bank/import";
+import { gradeFromGradeSemester } from "@/lib/question-bank/grade";
 
 /** 错题最近练习过的题目数上限：选题时排除这些题干 */
 const EXCLUDE_RECENT_PRACTICES = 20;
@@ -30,6 +31,7 @@ export interface BankSelectionInput {
     errorItem: {
         id: string;
         questionText: string | null;
+        gradeSemester?: string | null;
         subject: { name: string; stage: string | null; subjectKey: string | null } | null;
     };
     tagNames: string[];
@@ -114,10 +116,11 @@ export async function selectBankQuestion(input: BankSelectionInput): Promise<Ban
         : [];
     const excluded = new Set(recent.map((record) => record.questionText?.trim()).filter(Boolean) as string[]);
 
-    const fetchCandidates = async (stars?: number[]) => prisma.bankQuestion.findMany({
+    const fetchCandidates = async (stars?: number[], grades?: number[]) => prisma.bankQuestion.findMany({
         where: {
             ...baseWhere,
             ...(stars ? { difficultyStars: { in: stars } } : {}),
+            ...(grades ? { grade: { in: grades } } : {}),
         },
         orderBy: { createdAt: 'asc' },
         take: MAX_CANDIDATES,
@@ -129,9 +132,20 @@ export async function selectBankQuestion(input: BankSelectionInput): Promise<Ban
     });
 
     const preferredStars = DIFFICULTY_STARS[input.difficulty] ?? DIFFICULTY_STARS.medium;
-    const candidates = await fetchCandidates();
-
-    const usable = candidates.filter((question) => !excluded.has(question.text.trim()));
+    const targetGrade = gradeFromGradeSemester(input.errorItem.gradeSemester);
+    const gradeLadder: (number[] | undefined)[] = targetGrade
+        ? [
+            [targetGrade],
+            [targetGrade - 1, targetGrade, targetGrade + 1].filter((grade) => grade >= 1 && grade <= 12),
+            undefined,
+        ]
+        : [undefined];
+    let usable: Awaited<ReturnType<typeof fetchCandidates>> = [];
+    for (const grades of gradeLadder) {
+        const candidates = await fetchCandidates(undefined, grades);
+        usable = candidates.filter((question) => !excluded.has(question.text.trim()));
+        if (usable.length > 0) break;
+    }
     if (usable.length === 0) return null;
 
     const scored = usable.map((question) => ({
