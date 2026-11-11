@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, ClipboardPaste, Keyboard, Loader2, Plus, Save } from "lucide-react";
+import { Camera, ClipboardPaste, Images, Keyboard, Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,8 +43,10 @@ export default function DictationAddPage() {
     const [importContent, setImportContent] = useState("");
 
     const [photoState, setPhotoState] = useState<"idle" | "recognizing" | "review" | "error">("idle");
+    const [photoProgress, setPhotoProgress] = useState<{ done: number; total: number } | null>(null);
     const [drafts, setDrafts] = useState<(DictationRecognizeDraft & { include: boolean })[]>([]);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const albumInputRef = useRef<HTMLInputElement>(null);
 
     const saveManual = useCallback(async () => {
         const valid = entries.filter((entry) => entry.text.trim());
@@ -84,27 +86,44 @@ export default function DictationAddPage() {
         }
     }, [importContent, lang, fmt, t]);
 
-    const recognizePhoto = useCallback(
-        async (file: File) => {
+    const recognizingLabel =
+        photoProgress && photoProgress.total > 1
+            ? fmt(t.add.recognizingMulti, { done: photoProgress.done + 1, total: photoProgress.total })
+            : t.add.recognizing;
+
+    const recognizePhotos = useCallback(
+        async (files: File[]) => {
+            if (files.length === 0) return;
             setPhotoState("recognizing");
             setSavedMessage(null);
-            try {
-                const { rendered } = await processImageBlob(file);
-                const base64 = rendered.dataUrl.split(",")[1] ?? "";
-                const result = await apiClient.post<{ drafts: DictationRecognizeDraft[] }, unknown>("/api/dictation/recognize", {
-                    imageBase64: base64,
-                    mimeType: "image/jpeg",
-                    lang,
-                });
-                setDrafts(result.drafts.map((draft) => ({ ...draft, include: true })));
-                setPhotoState(result.drafts.length > 0 ? "review" : "idle");
-                if (result.drafts.length === 0) setSavedMessage(t.add.recognizeEmpty);
-            } catch {
+            const collected: (DictationRecognizeDraft & { include: boolean })[] = [];
+            let failed = 0;
+            for (let i = 0; i < files.length; i++) {
+                setPhotoProgress({ done: i, total: files.length });
+                try {
+                    const { rendered } = await processImageBlob(files[i]);
+                    const base64 = rendered.dataUrl.split(",")[1] ?? "";
+                    const result = await apiClient.post<{ drafts: DictationRecognizeDraft[] }, unknown>("/api/dictation/recognize", {
+                        imageBase64: base64,
+                        mimeType: "image/jpeg",
+                        lang,
+                    });
+                    collected.push(...result.drafts.map((draft) => ({ ...draft, include: true })));
+                } catch {
+                    failed += 1;
+                }
+            }
+            setPhotoProgress(null);
+            setDrafts((prev) => [...prev, ...collected]);
+            if (collected.length > 0) {
+                setPhotoState("review");
+                if (failed > 0) setSavedMessage(fmt(t.add.photoFailedSome, { count: failed }));
+            } else {
                 setPhotoState("error");
-                setSavedMessage(t.add.recognizeError);
+                setSavedMessage(failed > 0 && files.length > 1 ? t.add.photoAllFailed : t.add.recognizeError);
             }
         },
-        [lang, t],
+        [lang, fmt, t],
     );
 
     const saveRecognized = useCallback(async () => {
@@ -258,21 +277,39 @@ export default function DictationAddPage() {
                     />
                     <p className="text-sm text-muted-foreground">{t.add.photoTip}</p>
                     <input
-                        ref={fileInputRef}
+                        ref={cameraInputRef}
                         type="file"
                         accept="image/*"
                         capture="environment"
                         className="hidden"
                         onChange={(event) => {
-                            const file = event.target.files?.[0];
-                            if (file) void recognizePhoto(file);
+                            const files = Array.from(event.target.files ?? []);
+                            if (files.length > 0) void recognizePhotos(files);
                             event.target.value = "";
                         }}
                     />
-                    <Button onClick={() => fileInputRef.current?.click()} disabled={photoState === "recognizing"} className="w-full" size="lg">
-                        {photoState === "recognizing" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
-                        {photoState === "recognizing" ? t.add.recognizing : t.add.photoButton}
-                    </Button>
+                    <input
+                        ref={albumInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(event) => {
+                            const files = Array.from(event.target.files ?? []);
+                            if (files.length > 0) void recognizePhotos(files);
+                            event.target.value = "";
+                        }}
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button onClick={() => cameraInputRef.current?.click()} disabled={photoState === "recognizing"} size="lg">
+                            {photoState === "recognizing" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+                            {photoState === "recognizing" ? recognizingLabel : t.add.photoButton}
+                        </Button>
+                        <Button variant="outline" onClick={() => albumInputRef.current?.click()} disabled={photoState === "recognizing"} size="lg">
+                            {photoState === "recognizing" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Images className="h-5 w-5" />}
+                            {t.add.albumButton}
+                        </Button>
+                    </div>
 
                     {photoState === "review" && drafts.length > 0 && (
                         <div className="space-y-3">
