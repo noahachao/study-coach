@@ -47,6 +47,7 @@ export const dictationZh = {
         edit: "编辑",
         delete: "删除",
         save: "保存",
+        viewList: "查看词条",
         cancel: "取消",
         confirmDelete: "确定删除这条吗？",
         retry: "重试",

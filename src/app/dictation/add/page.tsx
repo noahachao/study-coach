@@ -212,7 +212,7 @@ export default function DictationAddPage() {
                     <CardContent className="flex items-center justify-between px-4">
                         <span className="text-sm">{savedMessage}</span>
                         <Button size="sm" variant="outline" onClick={closeAfterSave}>
-                            {t.actions.save}
+                            {t.actions.viewList}
                         </Button>
                     </CardContent>
                 </Card>

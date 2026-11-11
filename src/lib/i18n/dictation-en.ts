@@ -49,6 +49,7 @@ export const dictationEn: DictationTranslations = {
         edit: "Edit",
         delete: "Delete",
         save: "Save",
+        viewList: "View saved",
         cancel: "Cancel",
         confirmDelete: "Delete this item?",
         retry: "Retry",
