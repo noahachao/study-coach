@@ -195,7 +195,7 @@ describe('数据导出后再导入（真实 SQLite）', () => {
     it('导出文件使用第 14 版格式，包含 tagSet 字段、空的 extensions 与试卷 mode', async () => {
         const backup = await exportBackup();
         expect(backup.version).toBe(14);
-        expect(backup.extensions).toEqual({});
+        expect(backup.extensions).toEqual({ dictation: { version: 1, data: [] } });
         expect(backup.paperGroups).toContainEqual(expect.objectContaining({ id: 'group-b', key: 'b', name: 'B卷' }));
         expect(backup.systemTags).toBeDefined();
         expect(backup.subjects).toEqual(

@@ -33,6 +33,9 @@ export interface BackupExtension {
 /** 上游为空；fork 项目在此注册自己的扩展 */
 export const BACKUP_EXTENSIONS: BackupExtension[] = [];
 
+import { registerDictationBackup } from "@/lib/dictation/dictation-backup";
+registerDictationBackup(BACKUP_EXTENSIONS);
+
 /** 导出所有已注册扩展的数据 */
 export async function collectExtensions(
     ctx: BackupExportContext,

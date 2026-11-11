@@ -19,8 +19,8 @@ function makeImportCtx(): BackupImportContext {
 }
 
 describe("backup-extensions", () => {
-    it("上游默认注册表为空", () => {
-        expect(BACKUP_EXTENSIONS).toEqual([]);
+    it("默认注册表包含 fork 的默写扩展", () => {
+        expect(BACKUP_EXTENSIONS.map((ext) => ext.key)).toEqual(["dictation"]);
     });
 
     it("collectExtensions 返回每个注册扩展的数据", async () => {
