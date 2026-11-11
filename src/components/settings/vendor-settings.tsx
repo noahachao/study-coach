@@ -23,6 +23,7 @@ export function VendorSettings({ provider, value, onChange }: VendorSettingsProp
     // 默认地址为套餐地址的渠道单独说明按量付费和国际站的地址
     const baseUrlHints: Partial<Record<VendorProviderId, string>> = {
         qwen: t.settings?.ai?.qwenBaseUrlHint,
+        "glm-coding": t.settings?.ai?.glmCodingBaseUrlHint,
         stepfun: t.settings?.ai?.stepfunBaseUrlHint,
         volcengine: t.settings?.ai?.volcengineBaseUrlHint,
         "volcengine-agent": t.settings?.ai?.volcengineAgentBaseUrlHint,

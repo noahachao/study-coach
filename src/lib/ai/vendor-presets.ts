@@ -33,6 +33,15 @@ export const VENDOR_PRESETS = {
         consoleUrl: 'https://open.bigmodel.cn',
         docs: { cn: 'https://docs.bigmodel.cn/cn/guide/start/quick-start', intl: 'https://docs.z.ai/guides/overview/quick-start', apiKey: 'https://docs.bigmodel.cn/cn/guide/start/quick-start', models: 'https://docs.bigmodel.cn/cn/guide/start/model-overview' },
     },
+    'glm-coding': {
+        name: '智谱 GLM Coding Plan',
+        nameEn: 'Zhipu GLM Coding Plan',
+        baseUrl: 'https://open.bigmodel.cn/api/coding/paas/v4',
+        model: 'glm-5.3-flash',
+        envPrefix: 'GLM_CODING',
+        consoleUrl: 'https://bigmodel.cn/coding-plan',
+        docs: { cn: 'https://docs.bigmodel.cn/cn/coding-plan/latest-model', intl: 'https://docs.z.ai/devpack/quick-start', apiKey: 'https://docs.bigmodel.cn/cn/coding-plan/notice/api-key-management', models: 'https://docs.bigmodel.cn/cn/coding-plan/overview' },
+    },
     deepseek: {
         name: 'DeepSeek',
         nameEn: 'DeepSeek',

@@ -893,6 +893,7 @@ export const zh = {
                 volcengineBaseUrlHint: "本渠道按量付费；订阅了 Agent Plan 或 Coding Plan 时请选择对应的火山引擎套餐渠道（使用套餐专属地址，计入套餐额度）。国际站（BytePlus ModelArk）填写 https://ark.ap-southeast.bytepluses.com/api/v3。",
                 volcengineAgentBaseUrlHint: "Agent Plan 专属地址。请使用方舟控制台 Agent Plan 管理页的专属 API Key，普通方舟 Key 不能用于此地址。套餐含豆包语音合成，可在「语音讲解」中选用。默认模型 doubao-seed-evolving（豆包持续迭代的模型）；也可填写 ark-code-latest，使用方舟控制台「开通管理」中选择的模型（切换后约 3～5 分钟生效）。识别题目需要支持图片理解的模型。",
                 volcengineCodingBaseUrlHint: "Coding Plan 专属地址，使用方舟 API Key。不要改成 /api/v3：该地址不计入套餐额度，会按量计费。Coding Plan 不含语音合成，云端语音请在「语音讲解」中选择火山引擎 Agent Plan、豆包语音或其他渠道。默认模型 doubao-seed-evolving（豆包持续迭代的模型）；也可填写 ark-code-latest，使用方舟控制台「开通管理」中选择的模型（切换后约 3～5 分钟生效）。识别题目需要支持图片理解的模型。",
+                glmCodingBaseUrlHint: "Coding Plan 专属地址，需在控制台 Coding Plan 页面单独创建 API Key（2026 年 10 月 16 日起与标准 API Key 分开管理）。不要改成 /api/paas/v4：该地址不计入套餐额度，会按量计费。套餐只支持 GLM-5.3 / GLM-5.3-Flash 文本模型，拍照识别等视觉任务请使用「智谱 GLM」渠道。默认模型 glm-5.3-flash（抵扣系数最低）。",
                 volcengineFree: {
                     title: "免费试用",
                     body: "注册火山引擎即可获得每个模型的免费推理额度（官方文档为每个模型 50 万 tokens）。在火山方舟控制台的「开通管理」中开启「安心体验模式」后，调用只消耗免费额度，额度接近用完时自动暂停，不会产生费用。额度用完后如需继续使用，完成实名认证并改用「火山引擎 豆包」渠道。",
