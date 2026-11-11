@@ -48,8 +48,8 @@ export const VENDOR_PRESETS = {
         baseUrl: 'http://127.0.0.1:3425/v1',
         model: 'group/smart-split',
         envPrefix: 'MAGPIE',
-        consoleUrl: 'http://127.0.0.1:3425/v1/models',
-        docs: { cn: 'http://127.0.0.1:3425/v1/models', apiKey: 'http://127.0.0.1:3425/v1/models', models: 'http://127.0.0.1:3425/v1/models' },
+        consoleUrl: 'https://github.com/yetone/magpie',
+        docs: { cn: 'https://github.com/yetone/magpie', apiKey: 'https://github.com/yetone/magpie', models: 'https://github.com/yetone/magpie' },
     },
     deepseek: {
         name: 'DeepSeek',

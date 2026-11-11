@@ -41,10 +41,10 @@ export function parseDictationImport(content: string): ParseImportResult {
 export function inferItemType(lang: DictationLang, text: string): DictationItemType {
     const trimmed = text.trim();
     if (lang === "chinese") {
-        if (/[\u4e00-\u9fff，。！？、；：“”‘’]/.test(trimmed) && trimmed.length <= 2) return "char";
-        if (trimmed.length <= 8 && !/[，。！？；]/.test(trimmed)) return "word";
-        if (trimmed.length <= 20) return "phrase";
-        return "sentence";
+        if (/[\u4e00-\u9fff，。！？、；：“”‘’]/.test(trimmed) && trimmed.length === 1) return "char";
+        if (trimmed.length <= 3 && !/[，。！？；]/.test(trimmed)) return "word";
+        if (/[。！？]/.test(trimmed) || trimmed.length > 20) return "sentence";
+        return "phrase";
     }
     const words = trimmed.split(/\s+/).length;
     if (words <= 1) return "word";

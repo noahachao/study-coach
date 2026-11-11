@@ -25,7 +25,7 @@ function normalizeItemType(value: string | null, text: string): DictationItemTyp
         return trimmed as DictationItemType;
     }
     const len = [...text].length;
-    if (len <= 2) return "char";
+    if (len === 1) return "char";
     if (len <= 8) return "word";
     return "sentence";
 }
