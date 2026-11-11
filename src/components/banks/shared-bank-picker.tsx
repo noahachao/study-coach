@@ -10,8 +10,7 @@ import { toast } from "@/lib/feedback";
 import { getApiErrorMessage } from "@/lib/error-message";
 import { frontendLogger } from "@/lib/frontend-logger";
 import { bankErrorCodeFromMessage } from "@/lib/question-bank/errors";
-import { bankPackageUrl, parseBankFile, parseBankIndex } from "@/lib/question-bank/format";
-import { DEFAULT_BANK_INDEX_URL } from "@/lib/question-bank/types";
+import { parseBankFile, parseBankIndex } from "@/lib/question-bank/format";
 import type { BankIndexPackage } from "@/lib/question-bank/types";
 import type { BankImportResult } from "@/lib/question-bank/types";
 
@@ -41,7 +40,7 @@ export function SharedBankPicker({ existingNames, onImported }: SharedBankPicker
         setLoading(true);
         setFailed(false);
         try {
-            const response = await fetch(DEFAULT_BANK_INDEX_URL, { cache: "no-store", signal: AbortSignal.timeout(15_000) });
+            const response = await fetch("/api/question-banks/shared-index", { cache: "no-store", signal: AbortSignal.timeout(20_000) });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const parsed = parseBankIndex(await response.json());
             if (!parsed.success) throw new Error(parsed.error);
@@ -62,7 +61,7 @@ export function SharedBankPicker({ existingNames, onImported }: SharedBankPicker
     const handleImport = async (item: BankIndexPackage) => {
         setImportingId(item.id);
         try {
-            const response = await fetch(bankPackageUrl(DEFAULT_BANK_INDEX_URL, item.file), { cache: "no-store", signal: AbortSignal.timeout(30_000) });
+            const response = await fetch(`/api/question-banks/shared-package?file=${encodeURIComponent(item.file)}`, { cache: "no-store", signal: AbortSignal.timeout(120_000) });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const raw: unknown = await response.json();
             const parsed = parseBankFile(raw);
