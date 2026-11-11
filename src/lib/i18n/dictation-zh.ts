@@ -87,8 +87,9 @@ export const dictationZh = {
         taskQuotaExceeded: "今日 AI 额度已用完，明天再试或在设置里调整",
         taskConsentRequired: "请先在设置里同意 AI 数据使用",
         lowConfidence: "把握较低",
-        include: "保存",
-        exclude: "不保存",
+        draftHint: "点圆圈勾选要录入的词条，不勾的不录入；全部勾完点下方保存",
+        saveSelected: "保存勾选的 {count} 条",
+        selectedCount: "已勾选 {count} 条",
     },
     practice: {
         title: "听写练习",

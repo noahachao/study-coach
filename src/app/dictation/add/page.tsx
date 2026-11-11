@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Camera, CheckCircle2, ClipboardPaste, Images, Keyboard, Loader2, Plus, Save } from "lucide-react";
+import { AlertCircle, Camera, CheckCircle2, Circle, ClipboardPaste, Images, Keyboard, Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -378,7 +378,8 @@ export default function DictationAddPage() {
 
                     {draftRows.length > 0 && (
                         <div className="space-y-3">
-                            <p className="text-sm font-medium">{fmt(t.add.recognizeResult, { count: includedRows.length })}</p>
+                            <p className="text-sm text-muted-foreground">{t.add.draftHint}</p>
+                            <p className="text-sm font-medium">{fmt(t.add.selectedCount, { count: includedRows.length })}</p>
                             {draftRows.map((row, index) => {
                                 const key = `${row.taskId}:${row.draft.text}`;
                                 const included = !excluded[key];
@@ -393,16 +394,21 @@ export default function DictationAddPage() {
                                                     {row.draft.errorNote ? ` · ${row.draft.errorNote}` : ""}
                                                 </div>
                                             </div>
-                                            <div className="flex shrink-0 items-center gap-1">
+                                            <div className="flex shrink-0 items-center gap-2">
                                                 {row.draft.confidence < 0.7 && (
                                                     <span className="text-xs text-amber-600">{t.add.lowConfidence}</span>
                                                 )}
                                                 <Button
-                                                    variant={included ? "default" : "outline"}
+                                                    variant="ghost"
                                                     size="sm"
+                                                    aria-label={included ? t.add.selectedCount.replace("{count}", "1") : t.add.draftHint}
                                                     onClick={() => setExcluded((prev) => ({ ...prev, [key]: included }))}
                                                 >
-                                                    {included ? t.add.include : t.add.exclude}
+                                                    {included ? (
+                                                        <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                                                    ) : (
+                                                        <Circle className="h-6 w-6 text-muted-foreground" />
+                                                    )}
                                                 </Button>
                                             </div>
                                         </div>
@@ -412,7 +418,7 @@ export default function DictationAddPage() {
                             })}
                             <Button onClick={() => void saveRecognized()} disabled={saving || includedRows.length === 0} className="w-full">
                                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                {t.actions.save}
+                                {fmt(t.add.saveSelected, { count: includedRows.length })}
                             </Button>
                             {saveError && <p className="text-sm text-destructive">{saveError}</p>}
                         </div>

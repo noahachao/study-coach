@@ -89,8 +89,9 @@ export const dictationEn: DictationTranslations = {
         taskQuotaExceeded: "Today's AI quota is used up. Try tomorrow or adjust settings.",
         taskConsentRequired: "Please accept AI data consent in settings first.",
         lowConfidence: "Low confidence",
-        include: "Save",
-        exclude: "Skip",
+        draftHint: "Tap the circle to select items to save; unselected ones are kept for later",
+        saveSelected: "Save {count} selected",
+        selectedCount: "{count} selected",
     },
     practice: {
         title: "Dictation practice",
