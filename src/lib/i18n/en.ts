@@ -167,6 +167,7 @@ export const en = {
         nav: {
             home: "Add",
             notebooks: "Notebooks",
+            dictation: "Dictation",
             review: "Review",
             stats: "Stats",
             exams: "Exams",

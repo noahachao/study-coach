@@ -167,6 +167,7 @@ export const zh = {
         nav: {
             home: "录入",
             notebooks: "错题本",
+            dictation: "默写",
             review: "复习",
             stats: "统计",
             exams: "试卷",

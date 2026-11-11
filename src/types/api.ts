@@ -490,3 +490,63 @@ export interface ExamPaperDetail {
     createdAt: string;
     questions: ExamQuestionDetail[];
 }
+
+export type DictationLang = "chinese" | "english";
+export type DictationItemType = "char" | "word" | "phrase" | "sentence";
+
+export interface DictationRecordView {
+    result: "correct" | "wrong";
+    wrongForm: string | null;
+    createdAt: string;
+}
+
+export interface DictationItem {
+    id: string;
+    lang: DictationLang;
+    itemType: DictationItemType;
+    text: string;
+    pinyin: string | null;
+    meaning: string | null;
+    note: string | null;
+    source: string;
+    lastWrongForm: string | null;
+    errorCount: number;
+    createdAt: string;
+    records: DictationRecordView[];
+    stage: number;
+    nextReviewAt: string | null;
+    dueToday: boolean;
+    graduated: boolean;
+}
+
+export interface DictationLangSummary {
+    total: number;
+    dueToday: number;
+    graduated: number;
+}
+
+export interface DictationSummary {
+    chinese: DictationLangSummary;
+    english: DictationLangSummary;
+}
+
+export interface DictationListResponse {
+    items: DictationItem[];
+    summary: DictationSummary;
+}
+
+export interface DictationRecognizeDraft {
+    text: string;
+    pinyin?: string;
+    meaning?: string;
+    itemType: DictationItemType;
+    wrongForm?: string;
+    errorNote?: string;
+    confidence: number;
+}
+
+export interface DictationCreateResult {
+    created: DictationItem[];
+    skipped: number;
+    invalidLines?: number;
+}
