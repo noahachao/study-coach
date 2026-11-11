@@ -90,4 +90,8 @@ export class MiniMaxCodeProvider implements AIService {
     fixQuestionText(...args: Parameters<AIService['fixQuestionText']>) {
         return this.run((p) => p.fixQuestionText(...args));
     }
+
+    analyzeDictationImage(...args: Parameters<AIService['analyzeDictationImage']>) {
+        return this.run((p) => p.analyzeDictationImage(...args));
+    }
 }

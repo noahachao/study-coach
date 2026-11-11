@@ -72,6 +72,8 @@ function defaultResponseFor(task: CompletionRequest['task']): string {
             return '{"questions":[]}';
         case 'text-fix':
             return '{"questions":[{"id":"q1","text":"修正后","uncertain":[]}]}';
+        case 'dictation':
+            return '<items><item><text>默写</text><item_type>char</item_type><wrong_form>默邪</wrong_form><confidence>0.9</confidence></item></items>';
     }
 }
 

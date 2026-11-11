@@ -94,6 +94,7 @@ export interface AppConfig extends VendorConfigs {
         analyze?: string;
         similar?: string;
         reanswer?: string;
+        dictation?: string;
     };
     timeouts?: {
         analyze?: number; // 毫秒

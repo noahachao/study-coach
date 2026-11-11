@@ -6,6 +6,8 @@ import type { ParsedQuestionFromSchema } from './schema';
 import type { MistakeStatus } from '@/lib/question/mistake-status';
 import type { QuestionType } from '@/lib/question/question-type';
 import type { NarrationSegment } from '../svg-animation';
+import type { DictationDraft } from './dictation-parser';
+import type { DictationLang } from '@/lib/dictation/types';
 export type { MistakeStatus };
 
 export type DifficultyLevel = 'easy' | 'medium' | 'hard' | 'harder';
@@ -129,6 +131,8 @@ export interface AIService {
     splitQuestions(input: QuestionSplitInput): Promise<QuestionSplitResult>;
     /** 修正题目文字：删去混入的草稿、修正 OCR 错字，数字和算式保持原样 */
     fixQuestionText(input: TextFixInput): Promise<TextFixResult>;
+    /** 识别默写作业照片中被标记为错误的字词句，返回结构化草稿 */
+    analyzeDictationImage(imageBase64: string, mimeType: string, lang: DictationLang): Promise<DictationDraft[]>;
 }
 
 export interface AIConfig {

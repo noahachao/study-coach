@@ -11,6 +11,10 @@ import { parseLatexFix } from './latex-fix';
 import { getAppConfig } from '../config';
 import { parseGradeRecognition, parseMasteryEvaluation, parseAnswerGrading, normalizeSubject, parseTagSuggestion, parseDifficultyStars, parseQuestionType, parseFigure } from './schema';
 import { extractTag, parseQuestionResponse, splitKnowledgePoints } from './response-parser';
+import { generateDictationRequest } from './prompts/dictation';
+import { parseDictationResponse } from './dictation-parser';
+import type { DictationDraft } from './dictation-parser';
+import type { DictationLang } from '@/lib/dictation/types';
 import { prefetchSubjectTags } from './tag-service';
 import { createLogger } from '../logger';
 import { parseErrorCode } from './error-classification';
@@ -45,7 +49,8 @@ export type CompletionTask =
     | 'svg-animation'
     | 'svg-narration'
     | 'question-split'
-    | 'text-fix';
+    | 'text-fix'
+    | 'dictation';
 
 export interface CompletionRequest {
     task: CompletionTask;
@@ -376,6 +381,22 @@ export abstract class BaseAIProvider implements AIService {
             return parseTextFix(text, input);
         } catch (error) {
             logger.error({ error, stack: error instanceof Error ? error.stack : undefined }, 'Error during text fix');
+            this.handleError(error);
+            throw error;
+        }
+    }
+
+    async analyzeDictationImage(imageBase64: string, mimeType: string, lang: DictationLang): Promise<DictationDraft[]> {
+        const config = getAppConfig();
+        const prompt = generateDictationRequest(lang, { customTemplate: config.prompts?.dictation });
+        logger.info({ provider: this.providerName, lang, imageSize: imageBase64.length }, 'Dictation Recognition Request');
+
+        try {
+            const text = await this.run({ task: 'dictation', system: prompt.system, user: prompt.user, image: { base64: imageBase64, mimeType } });
+            logger.debug({ rawResponse: text }, 'Dictation AI raw response');
+            return parseDictationResponse(text);
+        } catch (error) {
+            logger.error({ error, stack: error instanceof Error ? error.stack : undefined }, 'Error during dictation recognition');
             this.handleError(error);
             throw error;
         }

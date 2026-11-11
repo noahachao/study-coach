@@ -46,6 +46,7 @@ model User {
   importTasks ImportTask[]
   importBatches ImportBatch[]
   questionBanks QuestionBank[]
+  dictationItems DictationItem[]
 }
 
 /// 用户导入的真题库：共享题库包或本地题库文件的结构化副本，独立于错题本
@@ -449,6 +450,45 @@ model ImportBatch {
 
   @@unique([userId, clientRequestId])
   @@index([userId, status])
+}
+
+// 默写模块（fork 自有）：字词句默写条目，调度复用 REVIEW_INTERVALS 与 getReviewPlan
+model DictationItem {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  lang     String // chinese | english
+  itemType String // char | word | phrase | sentence
+  text     String // 正确写法
+  pinyin   String? // 语文拼音/音标
+  meaning  String? // 释义（英语中文义/语文词义）
+  note     String? // 错误备注（错误类型等）
+
+  source        String  @default("manual") // manual | photo | import
+  lastWrongForm String? // 最近一次错误写法（展示用，历史见 records）
+  errorCount    Int     @default(0) // 累计写错次数
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  records DictationRecord[]
+
+  @@index([userId, lang, createdAt])
+}
+
+// 默写作答历史：result 与 ErrorItem 调度记录一致（correct | wrong）
+model DictationRecord {
+  id              String       @id @default(cuid())
+  dictationItemId String
+  dictationItem   DictationItem @relation(fields: [dictationItemId], references: [id], onDelete: Cascade)
+
+  result    String // correct | wrong
+  wrongForm String? // 本次错误写法
+
+  createdAt DateTime @default(now())
+
+  @@index([dictationItemId, createdAt])
 }
 
 /// 匿名遥测事件：同时作为本地记录与外发待发队列（见 doc/TELEMETRY_DESIGN.md §2.2）。
