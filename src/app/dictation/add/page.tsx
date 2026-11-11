@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, ClipboardPaste, Images, Keyboard, Loader2, Plus, Save } from "lucide-react";
+import { AlertCircle, Camera, CheckCircle2, ClipboardPaste, Images, Keyboard, Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,12 +11,13 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api-client";
+import { newClientRequestId } from "@/lib/import/import-task-client";
 import { inferItemType } from "@/lib/dictation/import-parser";
 import { isDictationLang, type DictationLang } from "@/lib/dictation/types";
-import { processImageBlob } from "@/lib/image-pipeline";
+import { DEFAULT_IMAGE_LIMITS, processImageBlob } from "@/lib/image-pipeline";
 import { useDictationTranslations } from "@/lib/hooks/use-dictation-translations";
 import { usePageTitle } from "@/lib/page-title";
-import type { DictationCreateResult, DictationItem, DictationRecognizeDraft } from "@/types/api";
+import type { DictationCreateResult, DictationItem, DictationRecognizeTaskView, DictationRecognizeTasksResponse } from "@/types/api";
 
 type AddTab = "manual" | "photo" | "import";
 
@@ -42,9 +43,10 @@ export default function DictationAddPage() {
     const [entries, setEntries] = useState<ManualEntry[]>([{ ...emptyEntry }]);
     const [importContent, setImportContent] = useState("");
 
-    const [photoState, setPhotoState] = useState<"idle" | "recognizing" | "review" | "error">("idle");
-    const [photoProgress, setPhotoProgress] = useState<{ done: number; total: number } | null>(null);
-    const [drafts, setDrafts] = useState<(DictationRecognizeDraft & { include: boolean })[]>([]);
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState<string | null>(null);
+    const [tasks, setTasks] = useState<DictationRecognizeTaskView[]>([]);
+    const [excluded, setExcluded] = useState<Record<string, boolean>>({});
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const albumInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,70 +88,87 @@ export default function DictationAddPage() {
         }
     }, [importContent, lang, fmt, t]);
 
-    const recognizingLabel =
-        photoProgress && photoProgress.total > 1
-            ? fmt(t.add.recognizingMulti, { done: photoProgress.done + 1, total: photoProgress.total })
-            : t.add.recognizing;
+    useEffect(() => {
+        if (tab !== "photo") return;
+        let stopped = false;
+        const tick = async () => {
+            try {
+                const result = await apiClient.get<DictationRecognizeTasksResponse>("/api/dictation/recognize-tasks");
+                if (!stopped) setTasks(result.tasks);
+            } catch {
+                // 轮询失败时保留上次列表
+            }
+        };
+        void tick();
+        const timer = setInterval(() => { void tick(); }, 3000);
+        return () => { stopped = true; clearInterval(timer); };
+    }, [tab]);
 
-    const recognizePhotos = useCallback(
+    const handlePhotoFiles = useCallback(
         async (files: File[]) => {
             if (files.length === 0) return;
-            setPhotoState("recognizing");
+            setUploading(true);
+            setUploadError(null);
             setSavedMessage(null);
-            const collected: (DictationRecognizeDraft & { include: boolean })[] = [];
-            let failed = 0;
-            for (let i = 0; i < files.length; i++) {
-                setPhotoProgress({ done: i, total: files.length });
-                try {
-                    const { rendered } = await processImageBlob(files[i]);
-                    const base64 = rendered.dataUrl.split(",")[1] ?? "";
-                    const result = await apiClient.post<{ drafts: DictationRecognizeDraft[] }, unknown>("/api/dictation/recognize", {
-                        imageBase64: base64,
-                        mimeType: "image/jpeg",
-                        lang,
-                    });
-                    collected.push(...result.drafts.map((draft) => ({ ...draft, include: true })));
-                } catch {
-                    failed += 1;
-                }
-            }
-            setPhotoProgress(null);
-            setDrafts((prev) => [...prev, ...collected]);
-            if (collected.length > 0) {
-                setPhotoState("review");
-                if (failed > 0) setSavedMessage(fmt(t.add.photoFailedSome, { count: failed }));
-            } else {
-                setPhotoState("error");
-                setSavedMessage(failed > 0 && files.length > 1 ? t.add.photoAllFailed : t.add.recognizeError);
+            try {
+                const images = await Promise.all(files.map(async (file) => {
+                    const { rendered } = await processImageBlob(file, { ...DEFAULT_IMAGE_LIMITS, maxLongEdge: 1600, maxBytes: 1024 * 1024 });
+                    return { clientRequestId: newClientRequestId(), imageData: rendered.dataUrl };
+                }));
+                const result = await apiClient.post<DictationRecognizeTasksResponse, unknown>("/api/dictation/recognize-tasks", {
+                    lang,
+                    images,
+                });
+                setTasks(result.tasks);
+            } catch {
+                setUploadError(t.add.uploadFailed);
+            } finally {
+                setUploading(false);
             }
         },
-        [lang, fmt, t],
+        [lang, t],
     );
 
+    const retryTask = useCallback(
+        async (taskId: string) => {
+            try {
+                const result = await apiClient.post<{ task: DictationRecognizeTaskView }, unknown>(`/api/dictation/recognize-tasks/${taskId}/retry`, {});
+                setTasks((prev) => prev.map((task) => (task.id === taskId ? result.task : task)));
+            } catch {
+                setUploadError(t.add.uploadFailed);
+            }
+        },
+        [t],
+    );
+
+    const reviewTasks = tasks.filter((task) => task.status === "review");
+    const draftRows = reviewTasks.flatMap((task) => task.drafts.map((draft) => ({ taskId: task.id, draft })));
+    const includedRows = draftRows.filter((row) => !excluded[`${row.taskId}:${row.draft.text}`]);
+
     const saveRecognized = useCallback(async () => {
-        const included = drafts.filter((draft) => draft.include);
-        if (included.length === 0) return;
+        if (includedRows.length === 0) return;
         setSaving(true);
         try {
             const result = await apiClient.post<DictationCreateResult, unknown>("/api/dictation/items", {
                 lang,
                 source: "photo",
-                items: included.map((draft) => ({
-                    itemType: draft.itemType,
-                    text: draft.text,
-                    pinyin: draft.pinyin || undefined,
-                    meaning: draft.meaning || undefined,
-                    note: draft.errorNote || undefined,
-                    wrongForm: draft.wrongForm || undefined,
+                items: includedRows.map((row) => ({
+                    itemType: row.draft.itemType,
+                    text: row.draft.text,
+                    pinyin: row.draft.pinyin || undefined,
+                    meaning: row.draft.meaning || undefined,
+                    note: row.draft.errorNote || undefined,
+                    wrongForm: row.draft.wrongForm || undefined,
                 })),
             });
             setSavedMessage(fmt(t.add.savedResult, { created: result.created.length, skipped: result.skipped }));
-            setDrafts([]);
-            setPhotoState("idle");
+            await Promise.allSettled(reviewTasks.map((task) => apiClient.delete(`/api/dictation/recognize-tasks/${task.id}`)));
+            setTasks((prev) => prev.filter((task) => task.status !== "review"));
+            setExcluded({});
         } finally {
             setSaving(false);
         }
-    }, [drafts, lang, fmt, t]);
+    }, [includedRows, reviewTasks, lang, fmt, t]);
 
     const closeAfterSave = useCallback(() => {
         if (savedMessage) router.push("/dictation");
@@ -284,7 +303,7 @@ export default function DictationAddPage() {
                         className="hidden"
                         onChange={(event) => {
                             const files = Array.from(event.target.files ?? []);
-                            if (files.length > 0) void recognizePhotos(files);
+                            if (files.length > 0) void handlePhotoFiles(files);
                             event.target.value = "";
                         }}
                     />
@@ -296,52 +315,95 @@ export default function DictationAddPage() {
                         className="hidden"
                         onChange={(event) => {
                             const files = Array.from(event.target.files ?? []);
-                            if (files.length > 0) void recognizePhotos(files);
+                            if (files.length > 0) void handlePhotoFiles(files);
                             event.target.value = "";
                         }}
                     />
                     <div className="grid grid-cols-2 gap-2">
-                        <Button onClick={() => cameraInputRef.current?.click()} disabled={photoState === "recognizing"} size="lg">
-                            {photoState === "recognizing" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
-                            {photoState === "recognizing" ? recognizingLabel : t.add.photoButton}
+                        <Button onClick={() => cameraInputRef.current?.click()} disabled={uploading} size="lg">
+                            {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+                            {uploading ? t.add.uploading : t.add.photoButton}
                         </Button>
-                        <Button variant="outline" onClick={() => albumInputRef.current?.click()} disabled={photoState === "recognizing"} size="lg">
-                            {photoState === "recognizing" ? <Loader2 className="h-5 w-5 animate-spin" /> : <Images className="h-5 w-5" />}
+                        <Button variant="outline" onClick={() => albumInputRef.current?.click()} disabled={uploading} size="lg">
+                            {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Images className="h-5 w-5" />}
                             {t.add.albumButton}
                         </Button>
                     </div>
+                    {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
 
-                    {photoState === "review" && drafts.length > 0 && (
+                    {tasks.length > 0 && (
+                        <div className="space-y-2">
+                            {tasks.map((task) => (
+                                <Card key={task.id} className="gap-2 py-3">
+                                    <CardContent className="flex items-center justify-between gap-2 px-4">
+                                        <div className="flex min-w-0 items-center gap-2">
+                                            {task.status === "analyzing" ? (
+                                                <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                                            ) : task.status === "review" ? (
+                                                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                                            ) : (
+                                                <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
+                                            )}
+                                            <span className="truncate text-sm">
+                                                {task.status === "analyzing"
+                                                    ? t.add.taskAnalyzing
+                                                    : task.status === "review"
+                                                      ? task.drafts.length > 0
+                                                            ? fmt(t.add.taskFoundItems, { count: task.drafts.length })
+                                                            : t.add.recognizeEmpty
+                                                      : task.error === "AI_DAILY_LIMIT_EXCEEDED" || task.error === "AI_QUOTA_INSUFFICIENT"
+                                                        ? t.add.taskQuotaExceeded
+                                                        : task.error === "AI_CONSENT_REQUIRED"
+                                                          ? t.add.taskConsentRequired
+                                                          : t.add.taskFailed}
+                                            </span>
+                                        </div>
+                                        {task.status === "failed" && (
+                                            <Button variant="outline" size="sm" onClick={() => void retryTask(task.id)}>
+                                                {t.add.taskRetry}
+                                            </Button>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+
+                    {draftRows.length > 0 && (
                         <div className="space-y-3">
-                            <p className="text-sm font-medium">{fmt(t.add.recognizeResult, { count: drafts.filter((d) => d.include).length })}</p>
-                            {drafts.map((draft, index) => (
+                            <p className="text-sm font-medium">{fmt(t.add.recognizeResult, { count: includedRows.length })}</p>
+                            {draftRows.map((row, index) => {
+                                const key = `${row.taskId}:${row.draft.text}`;
+                                const included = !excluded[key];
+                                return (
                                 <Card key={index} className="gap-2 py-4">
                                     <CardContent className="space-y-2 px-4">
                                         <div className="flex items-center justify-between gap-2">
                                             <div className="min-w-0">
-                                                <div className="text-lg font-semibold">{draft.text}</div>
+                                                <div className="text-lg font-semibold">{row.draft.text}</div>
                                                 <div className="text-xs text-muted-foreground">
-                                                    {draft.wrongForm ? `${t.add.wrongFormLabel}: ${draft.wrongForm}` : ""}
-                                                    {draft.errorNote ? ` · ${draft.errorNote}` : ""}
+                                                    {row.draft.wrongForm ? `${t.add.wrongFormLabel}: ${row.draft.wrongForm}` : ""}
+                                                    {row.draft.errorNote ? ` · ${row.draft.errorNote}` : ""}
                                                 </div>
                                             </div>
                                             <div className="flex shrink-0 items-center gap-1">
-                                                {draft.confidence < 0.7 && (
+                                                {row.draft.confidence < 0.7 && (
                                                     <span className="text-xs text-amber-600">{t.add.lowConfidence}</span>
                                                 )}
                                                 <Button
-                                                    variant={draft.include ? "default" : "outline"}
+                                                    variant={included ? "default" : "outline"}
                                                     size="sm"
-                                                    onClick={() => setDrafts((prev) => prev.map((row, i) => (i === index ? { ...row, include: !row.include } : row)))}
+                                                    onClick={() => setExcluded((prev) => ({ ...prev, [key]: included }))}
                                                 >
-                                                    {draft.include ? t.add.include : t.add.exclude}
+                                                    {included ? t.add.include : t.add.exclude}
                                                 </Button>
                                             </div>
                                         </div>
                                     </CardContent>
                                 </Card>
-                            ))}
-                            <Button onClick={() => void saveRecognized()} disabled={saving || !drafts.some((draft) => draft.include)} className="w-full">
+                                );
+                            })}
+                            <Button onClick={() => void saveRecognized()} disabled={saving || includedRows.length === 0} className="w-full">
                                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                                 {t.actions.save}
                             </Button>

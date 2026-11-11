@@ -56,6 +56,19 @@ export const recognizeDictationSchema = z.object({
     lang: dictationLangSchema,
 });
 
+const dataUrlSchema = z.string().max(15 * 1024 * 1024).regex(/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/);
+
+/** POST /api/dictation/recognize-tasks 请求体 */
+export const createDictationRecognizeTasksSchema = z.object({
+    lang: dictationLangSchema,
+    images: z.array(
+        z.object({
+            clientRequestId: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/),
+            imageData: dataUrlSchema,
+        }),
+    ).min(1).max(20),
+});
+
 /** POST /api/dictation/import 请求体 */
 export const importDictationSchema = z.object({
     lang: dictationLangSchema,

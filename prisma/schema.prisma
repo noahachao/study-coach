@@ -47,6 +47,7 @@ model User {
   importBatches ImportBatch[]
   questionBanks QuestionBank[]
   dictationItems DictationItem[]
+  dictationImportTasks DictationImportTask[]
 }
 
 /// 用户导入的真题库：共享题库包或本地题库文件的结构化副本，独立于错题本
@@ -478,6 +479,27 @@ model DictationItem {
 }
 
 // 默写作答历史：result 与 ErrorItem 调度记录一致（correct | wrong）
+model DictationImportTask {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientRequestId String
+  lang            String
+  status          String    @default("analyzing") // analyzing 识别中 | review 待确认 | failed 失败
+  imageData       String
+  attempts        Int       @default(1)
+  drafts          String?
+  error           String?
+  runnerId        String?
+  heartbeatAt     DateTime?
+  finishedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, clientRequestId])
+  @@index([userId, status])
+}
+
 model DictationRecord {
   id              String       @id @default(cuid())
   dictationItemId String

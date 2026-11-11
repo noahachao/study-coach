@@ -550,3 +550,20 @@ export interface DictationCreateResult {
     skipped: number;
     invalidLines?: number;
 }
+
+export type DictationRecognizeTaskStatus = "analyzing" | "review" | "failed";
+
+export interface DictationRecognizeTaskView {
+    id: string;
+    lang: DictationLang;
+    status: DictationRecognizeTaskStatus;
+    attempts: number;
+    drafts: DictationRecognizeDraft[];
+    error: string | null;
+    createdAt: string;
+    finishedAt: string | null;
+}
+
+export interface DictationRecognizeTasksResponse {
+    tasks: DictationRecognizeTaskView[];
+}
