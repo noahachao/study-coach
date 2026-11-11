@@ -69,6 +69,7 @@ export const dictationZh = {
         addItem: "添加一条",
         saved: "已保存",
         savedResult: "新增 {created} 条，跳过重复 {skipped} 条",
+        saveFailed: "保存失败，请重试",
         importPlaceholder: "每行一条，可用空格分隔拼音或释义，如：\n美丽 měi lì\n翅膀\nbeautiful 漂亮的",
         importButton: "导入词库",
         photoTip: "拍摄孩子的默写作业，圈出错误后上传，AI 自动识别错误条目；多页可一次选多张",

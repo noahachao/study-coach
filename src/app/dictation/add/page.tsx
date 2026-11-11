@@ -46,6 +46,7 @@ export default function DictationAddPage() {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState<string | null>(null);
     const [tasks, setTasks] = useState<DictationRecognizeTaskView[]>([]);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const [excluded, setExcluded] = useState<Record<string, boolean>>({});
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const albumInputRef = useRef<HTMLInputElement>(null);
@@ -145,9 +146,10 @@ export default function DictationAddPage() {
     const draftRows = reviewTasks.flatMap((task) => task.drafts.map((draft) => ({ taskId: task.id, draft })));
     const includedRows = draftRows.filter((row) => !excluded[`${row.taskId}:${row.draft.text}`]);
 
-    const saveRecognized = useCallback(async () => {
+    const saveRecognized = async () => {
         if (includedRows.length === 0) return;
         setSaving(true);
+        setSaveError(null);
         try {
             const result = await apiClient.post<DictationCreateResult, unknown>("/api/dictation/items", {
                 lang,
@@ -162,13 +164,18 @@ export default function DictationAddPage() {
                 })),
             });
             setSavedMessage(fmt(t.add.savedResult, { created: result.created.length, skipped: result.skipped }));
-            await Promise.allSettled(reviewTasks.map((task) => apiClient.delete(`/api/dictation/recognize-tasks/${task.id}`)));
-            setTasks((prev) => prev.filter((task) => task.status !== "review"));
+            const savedKeys = new Set(includedRows.map((row) => `${row.taskId}:${row.draft.text}`));
+            const settledTasks = reviewTasks.filter((task) => task.drafts.every((draft) => savedKeys.has(`${task.id}:${draft.text}`)));
+            await Promise.allSettled(settledTasks.map((task) => apiClient.delete(`/api/dictation/recognize-tasks/${task.id}`)));
+            const settledIds = new Set(settledTasks.map((task) => task.id));
+            setTasks((prev) => prev.filter((task) => !settledIds.has(task.id)));
             setExcluded({});
+        } catch {
+            setSaveError(t.add.saveFailed);
         } finally {
             setSaving(false);
         }
-    }, [includedRows, reviewTasks, lang, fmt, t]);
+    };
 
     const closeAfterSave = useCallback(() => {
         if (savedMessage) router.push("/dictation");
@@ -407,6 +414,7 @@ export default function DictationAddPage() {
                                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                                 {t.actions.save}
                             </Button>
+                            {saveError && <p className="text-sm text-destructive">{saveError}</p>}
                         </div>
                     )}
                 </div>

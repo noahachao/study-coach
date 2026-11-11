@@ -71,6 +71,7 @@ export const dictationEn: DictationTranslations = {
         addItem: "Add item",
         saved: "Saved",
         savedResult: "Added {created}, skipped {skipped} duplicates",
+        saveFailed: "Save failed. Please retry.",
         importPlaceholder: "One item per line, optional annotation after a space:\n美丽 měi lì\n翅膀\nbeautiful pretty",
         importButton: "Import list",
         photoTip: "Take a photo of the dictation homework with mistakes circled, AI extracts the marked errors. Multi-page: pick several photos at once from the album.",
