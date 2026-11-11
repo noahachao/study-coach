@@ -6,7 +6,10 @@ import { isValidFigureAlign, isValidFigureScale } from "@/lib/figure-scale";
 export const updateErrorItemSchema = z.object({
     knowledgePoints: z.union([z.array(z.string()), z.string()]).nullable().optional(),
     gradeSemester: z.string().nullable().optional(),
-    paperLevel: z.string().nullable().optional(),
+    paperLevel: z.preprocess(
+        (value) => value === '' ? undefined : value,
+        z.string().nullable().optional(),
+    ),
     questionText: z.string().optional(),
     answerText: z.string().optional(),
     analysis: z.string().optional(),

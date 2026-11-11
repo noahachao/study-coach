@@ -43,7 +43,10 @@ export const importSchema = z.object({
     subjectName: z.string().max(100).nullish(),
     gradeSemester: z.string().max(100).nullish(),
     recognizedGradeSemester: z.string().max(100).nullish(),
-    paperLevel: z.string().max(30).nullish(),
+    paperLevel: z.preprocess(
+        (value) => value === '' ? null : value,
+        z.string().max(30).nullish(),
+    ),
     difficultyStars: z.number().int().min(1).max(5).nullish(),
     hasFigure: z.boolean().optional(),
     figureSvg: z.string().max(MAX_FIGURE_SVG_LENGTH).nullish(),
