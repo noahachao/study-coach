@@ -1,6 +1,8 @@
 ARG NODE_IMAGE=node:24-alpine
 FROM ${NODE_IMAGE} AS base
 
+RUN sed -i 's#https://dl-cdn.alpinelinux.org#https://mirrors.tuna.tsinghua.edu.cn#g' /etc/apk/repositories
+
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
@@ -11,6 +13,9 @@ WORKDIR /app
 # Install dependencies and generate Prisma Client once; cached until lockfile or schema changes
 COPY package.json package-lock.json ./
 COPY prisma/schema.prisma ./prisma/schema.prisma
+RUN sed -i 's#https://registry.npmjs.org#https://registry.npmmirror.com#g' package-lock.json \
+    && npm config set registry https://registry.npmmirror.com
+ENV PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --no-audit --no-fund && npx prisma generate
 
