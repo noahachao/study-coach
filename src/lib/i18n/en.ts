@@ -611,6 +611,7 @@ export const en = {
             sourceLabel: "Question source",
             sourceAi: "Generate with AI",
             sourceBank: "Pick from question bank",
+            sourceBankVariant: "Variant from bank",
             lastGeneratedAt: "Generated at {time}. Click Regenerate for a new question.",
             // practiceProblem: "Practice Problem", // Moved to app
             // yourAnswer: "Your Answer", // Moved to app
@@ -839,6 +840,14 @@ export const en = {
             general: {
                 timeZoneLabel: "Application time zone",
                 timeZoneDesc: "Used for dates, times and statistics throughout the app. Default: Asia/Shanghai. Administrators can enter an IANA time zone and save.",
+                questionNumberingLabel: "Question number display",
+                questionNumberingDesc: "Every question has both a 6-character ID and a serial number (numbered from #1000 for each user). This only changes the number shown in lists, details and printouts, and can be switched at any time. Search and locate accept either.",
+                questionNumberingOptions: {
+                    shortId: "6-character ID (e.g. oYMCZa)",
+                    seqNo: "Serial number (e.g. #1000)",
+                },
+                figureReviewLabel: "AI figure self-check",
+                figureReviewDesc: "After redrawing a figure, send the original and the redrawn result side by side to AI for comparison, correcting differences in arrow directions, connections and labels. Adds one AI call per figure and takes longer; off by default.",
                 invalidTimeZone: "Enter a valid IANA time zone, such as Asia/Shanghai.",
                 timeoutLabel: "AI Analysis Timeout (Seconds)",
                 timeoutDesc: "Increase this value if you experience frequent timeouts during AI analysis.",
@@ -1193,7 +1202,7 @@ export const en = {
             aiAuth: "⚠️ Invalid API key\n\nPlease check your AI provider settings and verify the API key is correct",
             aiConnectionFailed: "⚠️ Cannot connect to AI service\n\nPlease check:\n• Internet connection\n• Proxy settings\n• Firewall configuration",
             aiResponseError: "⚠️ AI returned invalid response\n\nPlease try again, contact support if issue persists",
-            AI_TIMEOUT_ERROR: "Request timeout. Please try again.",
+            AI_TIMEOUT_ERROR: "The AI took too long to respond. Please try again. Reasoning models are slow on full-page images; select a smaller area or switch to a faster model.",
             AI_QUOTA_EXCEEDED: "API quota exceeded or insufficient balance. Please check your account.",
             AI_PERMISSION_DENIED: "Permission denied (403). Please check your API key permissions.",
             AI_NOT_FOUND: "Resource not found (404). Please check endpoint URL or model name.",
@@ -1454,12 +1463,12 @@ export const en = {
             label: "ID",
             copy: "Copy ID",
             copied: "ID copied",
-            locateTitle: "Locate by ID",
-            locatePlaceholder: "Enter 6-character question ID",
+            locateTitle: "Locate by number",
+            locatePlaceholder: "6-character ID or serial number (e.g. #1000)",
             locate: "Go",
-            notFound: "No question found with this ID",
-            invalid: "A question ID has 6 characters (letters and digits)",
-            searchHint: "Press Enter on a 6-character ID to open that question",
+            notFound: "No question found with this number",
+            invalid: "Enter a 6-character ID (letters and digits) or a serial number such as #1000",
+            searchHint: "Press Enter on a 6-character ID to open that question; serial numbers such as #1000 can also be searched",
         },
         mastery: {
             probability: "Mastery probability",
@@ -1933,6 +1942,7 @@ export const en = {
             noFigure: "AI found no figure in this question",
             failed: "Failed to generate the figure",
             noImage: "No original image to draw the figure from",
+            remove: "Remove Figure",
         },
         svgAnimation: {
             title: "SVG Animated Explanation",
@@ -2061,6 +2071,16 @@ export const en = {
             preview: "Preview",
             empty: "Nothing to preview",
             doubleClickToEdit: "Double-click to edit the source",
+        },
+
+        pinyinToolbar: {
+            title: "Pinyin",
+            expand: "Expand pinyin tools",
+            collapse: "Collapse pinyin tools",
+            toneHint: "Click a tone-marked vowel to insert it at the cursor",
+            insertTone: "Insert {tone}",
+            convert: "Convert number tones",
+            convertHint: "Convert number tones such as ma3 to mǎ; 5 or 0 means neutral tone",
         },
         directEntry: {
             title: "Enter the question directly (Markdown + LaTeX supported)",

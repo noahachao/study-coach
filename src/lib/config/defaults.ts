@@ -1,4 +1,5 @@
 import { DEFAULT_TIME_ZONE } from '../date-time';
+import { DEFAULT_QUESTION_NUMBERING } from "../seq-no/seq-no-format";
 import { parseConcurrencyLimit } from '../ai-concurrency-limit';
 import { VENDOR_PROVIDER_IDS, VENDOR_PRESETS } from '../ai/vendor-presets';
 import { CLOUD_TTS_PROVIDERS, isTtsMode } from '../tts/constants';
@@ -20,6 +21,9 @@ export const DEFAULT_CONFIG: AppConfig = {
     aiDailyLimit: parseDailyLimit(process.env.AI_DAILY_LIMIT),
     aiConcurrencyLimit: parseConcurrencyLimit(process.env.AI_CONCURRENCY_LIMIT),
     timeZone: DEFAULT_TIME_ZONE,
+    questionNumbering: DEFAULT_QUESTION_NUMBERING,
+    // 配图比对校正默认关闭，避免重绘后额外的带图片 AI 调用；管理员可在「设置 → 通用」开启
+    figureReview: process.env.FIGURE_REVIEW === 'true',
     openai: {
         instances: process.env.OPENAI_API_KEY ? [{
             id: 'env-default',

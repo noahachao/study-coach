@@ -27,6 +27,16 @@ Choose a rule under **Settings → General** and click **Save grade rule**. Regu
 - Image recognition and text solving return the grade in the same AI request. Direct entry and external results missing a grade use one short additional request, counted toward the daily AI limit. Duplicates do not trigger it; an attempted but uncertain result is not requested again.
 - Affects new questions only. Existing questions and grades restored from backups stay as they were. Your rule and fixed value are included in your JSON backup.
 
+## Question number display
+
+Every question has two numbers: the 6-character ID generated when it is created (such as `oYMCZa`), and a serial number that counts up from `#1000` for each user. When upgrading to a version with serial numbers, existing questions are numbered automatically in the order they were added; numbers of deleted questions are not reused, and new questions continue from the last number.
+
+Admins choose which number is shown in lists, details, printouts and import results in "Settings → General → Question number display". The 6-character ID is the default, and the setting can be switched at any time without changing any data. It is stored in the `questionNumbering` field of `config/app-config.json` (`shortId` or `seqNo`). Whichever is shown, notebook search and locate-by-number accept both the 6-character ID and the serial number (with or without `#`); question links, the MCP interface and source records in exam papers keep using the 6-character ID. Serial numbers are exported with JSON backups; on restore a number is kept if it is free, otherwise the next number is assigned.
+
+## AI figure self-check
+
+After AI redraws a question figure, an admin can enable a comparison pass under "Settings → General → AI figure self-check": the original and the redrawn result are sent side by side to AI, which finds differences in arrow directions, connections and labels and returns a corrected SVG. This adds one AI call with images per figure and takes longer, so it is off by default. Results depend on how well the model reads images: in testing, MiniMax caught missing arrows and obvious misplacements but still judged arrow directions unreliably and occasionally moved correct elements, so try it on a few questions first. The setting is stored in the `figureReview` field of `config/app-config.json`; the `FIGURE_REVIEW=true` environment variable can set the default for new instances, and the value saved in the web UI takes precedence. Regular users can only see the global setting and cannot change it.
+
 ## App time zone
 
 The app uses Beijing time, `Asia/Shanghai`, by default. Admins enter a valid IANA time zone name in "Settings → General → App time zone" and save, for example `UTC`, `Europe/London` or `America/New_York`.

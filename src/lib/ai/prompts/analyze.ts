@@ -4,6 +4,7 @@
 
 import type { GradeLevel } from '../types';
 import {
+    generateChineseTranscriptionRules,
     generateFieldLanguageInstruction,
     generateGradeInstruction,
     generateGradeRecognitionInstruction,
@@ -11,7 +12,7 @@ import {
     DRAFT_FILTER_RULES,
     DIFFICULTY_STARS_RULES,
     QUESTION_TYPE_RULES,
-    FIGURE_SVG_RULES,
+    FIGURE_BOX_RULES,
     LATEX_RULES,
     getMathTagsForGrade,
     replaceVariables,
@@ -44,11 +45,9 @@ export const DEFAULT_ANALYZE_TEMPLATE = `【角色与核心任务 (ROLE AND CORE
 判断题目本身是否带有配图（几何图形、函数图像、示意图、统计图、实验装置图、电路图等；不含学生的作答痕迹和纯文字表格）。有配图填 true，否则填 false。
 </has_figure>
 
-<figure_svg>
-如果 has_figure 为 true，用 SVG 重新绘制题目配图：
-${FIGURE_SVG_RULES}
-如果 has_figure 为 false，请留空。
-</figure_svg>
+<figure_box>
+${FIGURE_BOX_RULES}
+</figure_box>
 
 <wrong_answer_text>
 如果图片中包含学生针对本题提交的正式错误答案或正式解题步骤，请按原样摘录；必须过滤掉空白处或题干旁的草稿、竖式演算、试算数字、涂改痕迹、审题圈画以及人的思考过程批注。如果图片中只有草稿/思考痕迹或没有看到正式错误解答，请留空。
@@ -150,14 +149,18 @@ ${LATEX_RULES}
  * Generates the analyze image prompt
  * @param language - Target language for analysis ('zh' or 'en')
  * @param grade - Optional grade level (7-9:初中, 10-12:高中) for cumulative tag filtering
+ * @param subject - 学科；语文时附带拼音与填空转写规则
  * @param options - Optional customizations
+ * @param gradeSemester - 固定年级学期
+ * @param referenceText - 题库文件文字层；含拼音时附带转写规则
  */
 export function generateAnalyzePrompt(
   language: 'zh' | 'en',
   grade?: GradeLevel | null,
   subject?: string | null,
   options?: PromptOptions,
-  gradeSemester?: string | null
+  gradeSemester?: string | null,
+  referenceText?: string | null
 ): string {
   const langInstruction = generateFieldLanguageInstruction(language);
 
@@ -336,9 +339,10 @@ ${politicsTagsString}`;
     provider_hints: options?.providerHints || ''
   }).trim() + '\n\n' + [
     '请完整识别用户图片中的题目、独立求解，并仅根据可见的正式作答分析错因，过滤掉草稿与人的思考过程。',
-    generateOutputContract('analyze'), DRAFT_FILTER_RULES, langInstruction, LATEX_RULES,
+    // 未指定错题本时 subject 为 null，学科由 AI 判断，无法提前知道是否语文，统一附带规则
+    generateOutputContract('analyze'), DRAFT_FILTER_RULES, generateChineseTranscriptionRules(subject, referenceText, true), langInstruction, LATEX_RULES,
     generateGradeInstruction(gradeSemester), generateGradeRecognitionInstruction(gradeSemester),
     tagsSection, DIFFICULTY_STARS_RULES, QUESTION_TYPE_RULES,
-    '有配图时必须输出 figure_svg；无配图时留空。' + FIGURE_SVG_RULES,
+    '有配图时必须输出 figure_box（配图稍后会单独重绘，这里不要输出 SVG）；无配图时留空。\n' + FIGURE_BOX_RULES,
   ].filter(Boolean).join('\n\n');
 }

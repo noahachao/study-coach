@@ -4,12 +4,12 @@ import {
     createPromptRequest, promptDataReference as ref,
     generateAnalyzePrompt, generateSimilarQuestionPrompt, generateReanswerPrompt,
     generateGeogebraPrompt, generateMasteryPrompt, generateGradingPrompt,
-    generateTagSuggestPrompt, generateFigurePrompt, generateSvgAnimationPrompt,
+    generateTagSuggestPrompt, generateFigurePrompt, generateFigureFixPrompt, generateFigureReviewPrompt, generateSvgAnimationPrompt,
     generateSvgNarrationPrompt, generateLatexFixPrompt, generateGradeRecognitionPrompt, generateQuestionSplitPrompt,
     generateTextFixPrompt,
     SVG_ANIMATION_REQUEST, SVG_NARRATION_REQUEST,
 } from './prompts';
-import type { PromptOptions, PromptRequest, LatexFixField } from './prompts';
+import type { FigureCanvas, PromptOptions, PromptRequest, LatexFixField } from './prompts';
 import type { AnswerGradingInput, GradeLevel, MasteryEvaluationInput, TagSuggestionInput } from './types';
 import type { LatexFixInput } from './latex-fix';
 import type { QuestionSplitInput } from './question-split';
@@ -65,7 +65,7 @@ const REFERENCE_TEXT_INSTRUCTION_ZH = `【参考文字（REFERENCE TEXT）】
 
 export function generateAnalyzeRequest(language: 'zh' | 'en', grade?: GradeLevel | null, subject?: string | null, options: PromptOptions = {}, gradeSemester?: string | null, referenceText?: string | null): PromptRequest {
     const trimmed = referenceText?.trim() ? referenceText.trim().slice(0, MAX_REFERENCE_TEXT_LENGTH) : null;
-    const system = generateAnalyzePrompt(language, grade, safeSubject(subject), referenceOptions(options), safeGrade(gradeSemester));
+    const system = generateAnalyzePrompt(language, grade, safeSubject(subject), referenceOptions(options), safeGrade(gradeSemester), trimmed);
     const request = createPromptRequest(
         system,
         { subject, gradeSemester, tagOptions: inputOptions(options), ...(trimmed ? { referenceText: trimmed } : {}) },
@@ -126,8 +126,26 @@ export function generateTagSuggestRequest(input: TagSuggestionInput): PromptRequ
     }), { ...input });
 }
 
-export function generateFigureRequest(questionText?: string | null): PromptRequest {
-    return createPromptRequest(generateFigurePrompt(ref('questionText')), { questionText });
+/** 画布尺寸是受控的整数，可以进入系统规则；超出合理范围时视为未知 */
+function safeCanvas(canvas?: FigureCanvas | null): FigureCanvas | null {
+    if (!canvas) return null;
+    const valid = (value: number) => Number.isInteger(value) && value >= 16 && value <= 4096;
+    return valid(canvas.width) && valid(canvas.height) ? { width: canvas.width, height: canvas.height, cropped: canvas.cropped === true } : null;
+}
+
+export function generateFigureRequest(questionText?: string | null, canvas?: FigureCanvas | null): PromptRequest {
+    return createPromptRequest(generateFigurePrompt(ref('questionText'), safeCanvas(canvas)), { questionText });
+}
+
+export function generateFigureFixRequest(figureSvg: string, xmlError: string): PromptRequest {
+    return createPromptRequest(generateFigureFixPrompt(ref('figureSvg'), ref('xmlError')), { figureSvg, xmlError });
+}
+
+/** 比对校正请求；画布尺寸无效时返回 null，此时无法对应坐标，不做比对 */
+export function generateFigureReviewRequest(questionText: string | null | undefined, figureSvg: string, canvas: FigureCanvas): PromptRequest | null {
+    const safe = safeCanvas(canvas);
+    if (!safe) return null;
+    return createPromptRequest(generateFigureReviewPrompt(ref('questionText'), ref('figureSvg'), safe), { questionText: questionText?.trim() || '', figureSvg });
 }
 
 export function generateGeogebraRequest(questionText: string, answerText: string, analysis: string, previousErrors?: string): PromptRequest {
@@ -169,7 +187,7 @@ export function generateQuestionSplitRequest(input: QuestionSplitInput): PromptR
 /** 修正题目文字：题目放在 data.questions，系统规则中不含任何题目文字 */
 export function generateTextFixRequest(input: TextFixInput): PromptRequest {
     return createPromptRequest(
-        generateTextFixPrompt(),
+        generateTextFixPrompt(input.map(({ text }) => text).join('\n')),
         { questions: input.map(({ id, text }) => ({ id, text })) },
         '请按系统规则逐题整理 data.questions 中的题目文字，只输出 JSON。',
     );

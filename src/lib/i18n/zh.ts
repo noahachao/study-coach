@@ -611,6 +611,7 @@ export const zh = {
             sourceLabel: "出题来源",
             sourceAi: "AI 生成",
             sourceBank: "从真题库选题",
+            sourceBankVariant: "真题库变式",
             lastGeneratedAt: "生成于 {time}，点击「重新生成」可换一道新题。",
             // practiceProblem: "练习题", // Moved to app
             // yourAnswer: "你的答案", // Moved to app
@@ -839,6 +840,14 @@ export const zh = {
             general: {
                 timeZoneLabel: "应用时区",
                 timeZoneDesc: "全站日期、时间和统计统一使用此时区，默认 Asia/Shanghai（北京时间）。管理员可输入 IANA 时区名称并保存。",
+                questionNumberingLabel: "题目编号显示方式",
+                questionNumberingDesc: "每道题同时有 6 位 ID 和流水号（每个用户从 #1000 起依次编号），切换只改变列表、详情和打印中显示的编号，可随时切换。搜索和按编号定位两种都支持。",
+                questionNumberingOptions: {
+                    shortId: "6 位 ID（如 oYMCZa）",
+                    seqNo: "流水号（如 #1000）",
+                },
+                figureReviewLabel: "AI 配图比对校正",
+                figureReviewDesc: "重绘配图后把原图与重绘结果并排交给 AI 比对，修正箭头方向、连线和标注等差异。每张配图多一次 AI 调用，耗时更长，默认关闭。",
                 invalidTimeZone: "请输入有效的 IANA 时区，例如 Asia/Shanghai。",
                 timeoutLabel: "AI 分析超时时间 (秒)",
                 timeoutDesc: "如果 AI 分析频繁超时，请增加此值。",
@@ -1192,7 +1201,7 @@ export const zh = {
             aiAuth: "⚠️ API 密钥无效\n\n请检查设置中的 AI 提供商配置，确认 API Key 是否正确",
             aiConnectionFailed: "⚠️ 无法连接到 AI 服务\n\n请检查：\n• 网络连接是否正常\n• 是否需要配置代理\n• 防火墙设置",
             aiResponseError: "⚠️ AI 返回了无效的响应\n\n请重试，如果问题持续请联系支持",
-            AI_TIMEOUT_ERROR: "请求超时，请稍后重试。",
+            AI_TIMEOUT_ERROR: "AI 响应超时，请稍后重试。推理模型识别整页图片较慢，可以只框选部分区域，或换用更快的模型。",
             AI_QUOTA_EXCEEDED: "API 配额不足或余额已用完，请检查您的账户。",
             AI_PERMISSION_DENIED: "权限被拒绝 (403)，请检查 API Key 权限设置。",
             AI_NOT_FOUND: "资源不存在 (404)，请检查端点 URL 或模型名称。",
@@ -1453,12 +1462,12 @@ export const zh = {
             label: "ID",
             copy: "复制 ID",
             copied: "已复制 ID",
-            locateTitle: "按 ID 定位题目",
-            locatePlaceholder: "输入 6 位题目 ID",
+            locateTitle: "按编号定位题目",
+            locatePlaceholder: "输入 6 位 ID 或流水号（如 #1000）",
             locate: "定位",
-            notFound: "没有找到这个 ID 对应的题目",
-            invalid: "题目 ID 为 6 位字母或数字",
-            searchHint: "输入 6 位题目 ID 后按回车可直接打开该题",
+            notFound: "没有找到这个编号对应的题目",
+            invalid: "请输入 6 位字母或数字的 ID，或流水号（如 #1000）",
+            searchHint: "输入 6 位 ID 后按回车可直接打开该题；也可以搜索流水号（如 #1000）",
         },
         mastery: {
             probability: "已掌握概率",
@@ -1932,6 +1941,7 @@ export const zh = {
             noFigure: "AI 判断本题没有配图",
             failed: "生成配图失败",
             noImage: "没有原题图片，无法生成配图",
+            remove: "去掉配图",
         },
         svgAnimation: {
             title: "SVG 动画讲解",
@@ -2060,6 +2070,16 @@ export const zh = {
             preview: "预览",
             empty: "暂无内容",
             doubleClickToEdit: "双击切换到源代码编辑",
+        },
+
+        pinyinToolbar: {
+            title: "拼音",
+            expand: "展开拼音工具",
+            collapse: "收起拼音工具",
+            toneHint: "点击带调元音插入到光标处",
+            insertTone: "插入 {tone}",
+            convert: "数字转声调",
+            convertHint: "把 ma3 这类数字声调转换成 mǎ；5 或 0 表示轻声",
         },
         directEntry: {
             title: "直接录入错题内容（支持 Markdown + LaTeX）",
