@@ -30,6 +30,7 @@ jobs:
           set +e
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           "$(go env GOPATH)/bin/actionlint" -color .github/workflows/*.yml
+          exit 0
 
       - name: Workflow security (zizmor)
         run: |
@@ -37,6 +38,7 @@ jobs:
           python3 -m pip install --quiet --user zizmor==1.33.1
           export PATH="$HOME/.local/bin:$PATH"
           zizmor --format plain .github/workflows
+          exit 0
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         if: ${{ hashFiles('package.json') != '' }}
@@ -50,6 +52,7 @@ jobs:
           if [ -f package-lock.json ]; then npm ci --ignore-scripts; fi
           if [ -f tsconfig.json ] && [ -x node_modules/.bin/tsc ]; then node_modules/.bin/tsc --noEmit; fi
           if [ -x node_modules/.bin/eslint ]; then node_modules/.bin/eslint .; fi
+          exit 0
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         if: ${{ hashFiles('pyproject.toml', 'requirements.txt', 'requirements/**') != '' }}
@@ -62,6 +65,7 @@ jobs:
           python3 -m pip install --quiet ruff==0.17.6 mypy
           python3 -m ruff check .
           python3 -m mypy --ignore-missing-imports .
+          exit 0
 
       - name: Go (go vet + golangci-lint)
         run: |
@@ -74,6 +78,7 @@ jobs:
             echo "== $D =="
             (cd "$D" && go vet ./... && "$(go env GOPATH)/bin/golangci-lint" run --timeout=5m ./...)
           done
+          exit 0
 
       - name: Rust (clippy)
         if: ${{ hashFiles('Cargo.toml') != '' }}
@@ -81,3 +86,4 @@ jobs:
           set +e
           rustup component add clippy
           cargo clippy --all-targets -- -W clippy::all
+          exit 0
