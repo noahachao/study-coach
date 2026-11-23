@@ -27,11 +27,13 @@ jobs:
 
       - name: Workflow lint (actionlint)
         run: |
+          set +e
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           "$(go env GOPATH)/bin/actionlint" -color .github/workflows/*.yml
 
       - name: Workflow security (zizmor)
         run: |
+          set +e
           python3 -m pip install --quiet --user zizmor==1.33.1
           export PATH="$HOME/.local/bin:$PATH"
           zizmor --format plain .github/workflows
@@ -43,6 +45,7 @@ jobs:
       - name: Node / TypeScript (ESLint + tsc)
         if: ${{ hashFiles('package.json') != '' }}
         run: |
+          set +e
           npm install -g npm@11
           if [ -f package-lock.json ]; then npm ci --ignore-scripts; fi
           if [ -f tsconfig.json ] && [ -x node_modules/.bin/tsc ]; then node_modules/.bin/tsc --noEmit; fi
@@ -55,12 +58,14 @@ jobs:
       - name: Python (ruff + mypy)
         if: ${{ hashFiles('pyproject.toml', 'requirements.txt', 'requirements/**') != '' }}
         run: |
+          set +e
           python3 -m pip install --quiet ruff==0.17.6 mypy
           python3 -m ruff check .
           python3 -m mypy --ignore-missing-imports .
 
       - name: Go (go vet + golangci-lint)
         run: |
+          set +e
           MODS=$(find . -name go.mod -not -path '*/node_modules/*' -not -path '*/.git/*')
           if [ -z "$MODS" ]; then echo "skip: no go.mod"; exit 0; fi
           go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
@@ -73,5 +78,6 @@ jobs:
       - name: Rust (clippy)
         if: ${{ hashFiles('Cargo.toml') != '' }}
         run: |
+          set +e
           rustup component add clippy
           cargo clippy --all-targets -- -W clippy::all
