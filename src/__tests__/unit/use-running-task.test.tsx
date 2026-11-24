@@ -88,7 +88,6 @@ describe('useRunningTask', () => {
         fetchMock.mockResolvedValueOnce(json({ tasks: [running] }));
         await renderWith(useRunningTask, `import-batch:${batchId}:fix-text`);
         expect(hookResult?.running).not.toBeNull();
-
         fetchMock.mockResolvedValueOnce(json({ tasks: [{ ...running, status: 'succeeded', finishedAt: new Date().toISOString() }] }));
         await act(async () => { await hookResult!.refresh(); });
         expect(hookResult?.running).toBeNull();

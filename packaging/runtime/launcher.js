@@ -170,6 +170,7 @@ function prepare(options = {}) {
     };
 
     ensurePrismaClient(env);
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- Node 启动器函数，不是 React Hook
     useBundledQueryEngine(env);
 
     if (!fs.existsSync(dbFile) || fs.statSync(dbFile).size === 0) {

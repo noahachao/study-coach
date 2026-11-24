@@ -13,6 +13,32 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "off",
     },
   },
+  {
+    files: ["**/*.js", "**/*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+  {
+    files: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']",
+          message: "测试中不要用裸 Date.now()，请用 vi.useFakeTimers() / vi.setSystemTime()。",
+        },
+        {
+          selector: "NewExpression[callee.name='Date'][arguments.length=0]",
+          message: "测试中不要用无参 new Date()，请用 vi.useFakeTimers() / vi.setSystemTime()。",
+        },
+        {
+          selector: "CallExpression[callee.name='setTimeout']",
+          message: "测试中不要用 setTimeout 真实 sleep，请用 vi.useFakeTimers() / vi.advanceTimersByTimeAsync()。",
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

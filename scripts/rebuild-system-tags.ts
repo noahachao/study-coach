@@ -122,7 +122,7 @@ async function main() {
             const newTagIds: string[] = [];
 
             for (const assoc of itemAssociations) {
-                let newTag = await tx.knowledgeTag.findFirst({
+                const newTag = await tx.knowledgeTag.findFirst({
                     where: {
                         name: assoc.tagName,
                         subject: assoc.subject,

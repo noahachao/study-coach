@@ -65,7 +65,7 @@ describe('AI 数据授权', () => {
     });
 
     it('已授权时 AI 路由正常调用', async () => {
-        mocks.user.findUnique.mockResolvedValue({ id: 'u1', role: 'user', aiDataConsentAt: new Date() });
+        mocks.user.findUnique.mockResolvedValue({ id: 'u1', role: 'user', aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') });
         mocks.ai.analyzeForGeogebra.mockResolvedValue({ suitable: true, commands: ['f(x)=x^2'], description: '抛物线' });
 
         const response = await geogebraAnalyze(geogebraRequest());

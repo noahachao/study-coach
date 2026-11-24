@@ -76,7 +76,7 @@ describe('POST /api/import 按 target 防重复', () => {
 
         const first = importRequest(validBackup);
         // 等第一个请求完成 reserve 并进入 transaction
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await Promise.resolve();
 
         const second = await importRequest(validBackup);
         expect(second.status).toBe(409);

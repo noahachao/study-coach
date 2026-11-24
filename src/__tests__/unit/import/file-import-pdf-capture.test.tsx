@@ -119,7 +119,7 @@ async function pickPdfFile() {
     const input = container.querySelector('input[type=file]') as HTMLInputElement;
     Object.defineProperty(input, "files", { value: [file], configurable: true });
     act(() => input.dispatchEvent(new Event("change", { bubbles: true })));
-    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+    await act(async () => { await Promise.resolve(); });
 }
 
 /** 构造含 2 题、第 2 题有图形的解析结果 */
@@ -179,7 +179,7 @@ describe("FileImportPanel：文字版 PDF 题目原图选项", () => {
             btn.textContent?.includes("导入 2 道题"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         // 只有第 2 题（index 1）被截图
         expect(captureQuestionMock).toHaveBeenCalledTimes(1);
         expect(captureQuestionMock.mock.calls[0]?.[1]).toEqual([
@@ -203,7 +203,7 @@ describe("FileImportPanel：文字版 PDF 题目原图选项", () => {
             btn.textContent?.includes("导入 2 道题"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(captureQuestionMock).toHaveBeenCalledTimes(2);
         const items = createStructuredImportBatchesMock.mock.calls[0]?.[0] as Array<{ image?: string | null }>;
         expect(items[0].image).toBe("data:image/jpeg;base64,rendered");
@@ -220,7 +220,7 @@ describe("FileImportPanel：文字版 PDF 题目原图选项", () => {
             btn.textContent?.includes("导入 2 道题"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(captureQuestionMock).not.toHaveBeenCalled();
         const items = createStructuredImportBatchesMock.mock.calls[0]?.[0] as Array<{ image?: string | null }>;
         expect(items[0].image ?? null).toBeNull();
@@ -239,7 +239,7 @@ describe("FileImportPanel：文字版 PDF 题目原图选项", () => {
             btn.textContent?.includes("导入 2 道题"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         // 批次仍被创建
         expect(createStructuredImportBatchesMock).toHaveBeenCalled();
         const items = createStructuredImportBatchesMock.mock.calls[0]?.[0] as Array<{ image?: string | null }>;

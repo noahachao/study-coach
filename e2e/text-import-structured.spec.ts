@@ -1,4 +1,5 @@
 import { expect, test } from './support/fixtures';
+import { zipSync, strToU8 } from 'fflate';
 
 /** 生成 65 道编号题（每题文字很短，保证按题数分批） */
 function buildLongText(count: number): string {
@@ -8,7 +9,6 @@ function buildLongText(count: number): string {
 /** 构造一个最小可用的 .docx（zip 容器，含 [Content_Types].xml 与 document.xml） */
 function buildMinimalDocx(text: string): Buffer {
     // 用 Node 内置 zlib 生成 zip 成本较高，这里用 fflate（已在 node_modules 中）
-    const { zipSync, strToU8 } = require('fflate') as typeof import('fflate');
     const files: Record<string, Uint8Array> = {
         '[Content_Types].xml': strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`),

@@ -197,7 +197,6 @@ describe('后台事务持久化', () => {
         writeFileSync(file, '{not json');
         resetBackgroundTasksForTest({ file });
         expect(listBackgroundTasks('u1')).toEqual([]);
-
         writeFileSync(file, JSON.stringify([{ id: 'x' }, 'bad', { id: 'ok', userId: 'u1', kind: 'reanswer', status: 'succeeded', startedAt: new Date().toISOString(), finishedAt: new Date().toISOString(), subject: null, progress: null, error: null, link: null }]));
         resetBackgroundTasksForTest({ file });
         expect(listBackgroundTasks('u1').map((t) => t.id)).toEqual(['ok']);

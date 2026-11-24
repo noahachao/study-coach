@@ -16,7 +16,7 @@ const prisma = new PrismaClient();
 async function seedSubject(
     subjectKey: string,
     subjectName: string,
-    curriculum: Record<string, any[]>,
+    curriculum: Record<string, Array<{ chapter: string; tags: string[] }>>,
     gradeOrder: Record<string, number>
 ) {
     console.log(`\n📚 处理学科: ${subjectName} (${subjectKey})`);

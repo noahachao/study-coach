@@ -93,7 +93,7 @@ async function pickFile(file: File) {
     const input = container.querySelector('input[type=file]') as HTMLInputElement;
     Object.defineProperty(input, "files", { value: [file], configurable: true });
     act(() => input.dispatchEvent(new Event("change", { bubbles: true })));
-    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+    await act(async () => { await Promise.resolve(); });
 }
 
 function pdfFile(): File {
@@ -142,7 +142,7 @@ describe("FileImportPanel：扫描版 PDF", () => {
         ) as HTMLButtonElement;
         expect(confirmButton.disabled).toBe(false);
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         // 默认全部 3 页
         expect(renderPagesMock).toHaveBeenCalledTimes(1);
         const renderArgs = renderPagesMock.mock.calls[0];
@@ -169,7 +169,7 @@ describe("FileImportPanel：扫描版 PDF", () => {
             btn.textContent?.includes("转为图片并识别导入"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(renderPagesMock).toHaveBeenCalledTimes(1);
         const renderArgs = renderPagesMock.mock.calls[0];
         expect(renderArgs?.[1]).toEqual([1, 2]);
@@ -188,7 +188,7 @@ describe("FileImportPanel：扫描版 PDF", () => {
             btn.textContent?.includes("转为图片并识别导入"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(container.textContent).toContain("页码范围无效");
         expect(renderPagesMock).not.toHaveBeenCalled();
     });
@@ -208,7 +208,7 @@ describe("FileImportPanel：扫描版 PDF", () => {
             btn.textContent?.includes("转为图片并识别导入"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("第 2 页"));
         expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("额度不足"));
         expect(pushMock).toHaveBeenCalledWith("/import-tasks");

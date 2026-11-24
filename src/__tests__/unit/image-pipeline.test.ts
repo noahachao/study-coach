@@ -115,7 +115,7 @@ afterEach(() => {
 /** jsdom 不解码图片：模拟 <img> 加载失败（与浏览器无法解码 HEIC 时一致） */
 class FailingImage {
     onerror: (() => void) | null = null;
-    set src(_value: string) { setTimeout(() => this.onerror?.(), 0); }
+    set src(_value: string) { queueMicrotask(() => this.onerror?.()); }
 }
 
 const source = (width: number, height: number) => ({ source: { width, height, close: vi.fn() } as unknown as ImageBitmap, width, height });

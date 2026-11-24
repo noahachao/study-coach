@@ -44,7 +44,6 @@ beforeAll(async () => {
     });
     database = new PrismaClient({ datasources: { db: { url } } });
     mocks.prisma = database;
-
     now = Date.now();
     await database.user.create({ data: { id: 'scale-user', email: 'scale@example.com', password: 'test-only', masteryThreshold: 50 } });
     await database.subject.create({ data: { id: 'math', name: '数学', stage: 'junior_high', subjectKey: 'math', userId: 'scale-user' } });

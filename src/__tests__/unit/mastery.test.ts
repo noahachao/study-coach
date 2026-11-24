@@ -110,7 +110,7 @@ describe('evaluateErrorItemMastery', () => {
             userId: 'user-1',
             questionText: '题目',
             mistakeStatus: 'wrong_attempt',
-            user: { masteryThreshold: 50, aiDataConsentAt: new Date() },
+            user: { masteryThreshold: 50, aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') },
             tags: [{ name: '方程' }],
             practiceRecords: [record('correct', 'hard', 1), record('correct', 'hard', 2)],
         });
@@ -134,7 +134,7 @@ describe('evaluateErrorItemMastery', () => {
             id: 'item-1',
             questionText: '题目',
             mistakeStatus: null,
-            user: { masteryThreshold: 90, aiDataConsentAt: new Date() },
+            user: { masteryThreshold: 90, aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') },
             tags: [],
             practiceRecords: [record('correct', 'hard', 1)],
         });

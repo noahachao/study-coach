@@ -93,7 +93,7 @@ describe("FileImportPanel", () => {
         const file = new File([JSON.stringify(data)], "bank.json", { type: "application/json" });
         await act(async () => pickFile(file));
         // 解析为微任务，等待摘要出现
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(container.textContent).toContain("共解析出 2 道题");
         expect(container.textContent).toContain("以下字段暂未导入");
         expect(container.textContent).toContain("学科");
@@ -106,7 +106,7 @@ describe("FileImportPanel", () => {
         const data = { questions: [{ text: "题 1" }] };
         const file = new File([JSON.stringify(data)], "bank.json", { type: "application/json" });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         const confirmButton = Array.from(container.querySelectorAll("button")).find((btn) =>
             btn.textContent?.includes("导入 1 道题"),
         ) as HTMLButtonElement;
@@ -117,7 +117,7 @@ describe("FileImportPanel", () => {
         await render();
         const file = new File(["{ bad json"], "bad.json", { type: "application/json" });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(toast.error).toHaveBeenCalled();
         expect(container.textContent).toContain("导入题库文件");
         expect(container.textContent).not.toContain("共解析出");
@@ -133,12 +133,12 @@ describe("FileImportPanel", () => {
         const data = { questions: [{ text: "题 1" }, { text: "题 2" }] };
         const file = new File([JSON.stringify(data)], "bank.json", { type: "application/json" });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         const confirmButton = Array.from(container.querySelectorAll("button")).find((btn) =>
             btn.textContent?.includes("导入 2 道题"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(createStructuredImportBatchesMock).toHaveBeenCalled();
         expect(pushMock).toHaveBeenCalledWith("/import-tasks");
     });
@@ -153,12 +153,12 @@ describe("FileImportPanel", () => {
         const data = { questions: [{ text: "题 1" }] };
         const file = new File([JSON.stringify(data)], "bank.json", { type: "application/json" });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         const confirmButton = Array.from(container.querySelectorAll("button")).find((btn) =>
             btn.textContent?.includes("导入 1 道题"),
         ) as HTMLButtonElement;
         await act(async () => confirmButton.click());
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(pushMock).toHaveBeenCalledWith("/import-batches/b-only");
     });
 });

@@ -44,7 +44,7 @@ describe("TextInputZone 从文件导入", () => {
         await render();
         const file = new File(["第一题"], "note.txt", { type: "text/plain" });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
         expect(textarea.value).toContain("第一题");
     });
@@ -56,7 +56,7 @@ describe("TextInputZone 从文件导入", () => {
             type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         // confirmDialog 返回 true，应触发切换
         expect(confirmDialog).toHaveBeenCalled();
         expect(onSwitchToFileImport).toHaveBeenCalled();
@@ -71,7 +71,7 @@ describe("TextInputZone 从文件导入", () => {
         await render({ onSwitchToFileImport });
         const file = new File(["{}"], "bank.json", { type: "application/json" });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(onSwitchToFileImport).not.toHaveBeenCalled();
         const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
         expect(textarea.value).toBe("");
@@ -83,7 +83,7 @@ describe("TextInputZone 从文件导入", () => {
             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
         await act(async () => pickFile(file));
-        await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+        await act(async () => { await Promise.resolve(); });
         expect(toast.info).toHaveBeenCalled();
         const textarea = container.querySelector("textarea") as HTMLTextAreaElement;
         expect(textarea.value).toBe("");

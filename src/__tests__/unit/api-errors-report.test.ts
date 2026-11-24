@@ -15,7 +15,7 @@ describe('internalError 与错误回报', () => {
         const response = internalError('Failed');
         expect(response.status).toBe(500);
         expect(await response.json()).toEqual({ message: 'Failed', code: 'INTERNAL_ERROR' });
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await Promise.resolve();
         expect(mocks.reportServerError).not.toHaveBeenCalled();
     });
 

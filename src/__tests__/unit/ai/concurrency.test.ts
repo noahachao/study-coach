@@ -15,7 +15,9 @@ function deferred() {
     return { promise, resolve };
 }
 
-const flush = () => new Promise((r) => setTimeout(r, 0));
+const flush = () => {
+    return new Promise((r) => setTimeout(r, 0));
+};
 
 describe('runWithModelConcurrency', () => {
     beforeEach(() => {

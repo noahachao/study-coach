@@ -26,13 +26,13 @@ describe('AI 数据授权（服务端）', () => {
     });
 
     it('传入授权时间时直接判断，不查数据库', async () => {
-        await expect(hasAiDataConsent({ id: 'u1', aiDataConsentAt: new Date() })).resolves.toBe(true);
+        await expect(hasAiDataConsent({ id: 'u1', aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') })).resolves.toBe(true);
         await expect(hasAiDataConsent({ id: 'u1', aiDataConsentAt: null })).resolves.toBe(false);
         expect(mocks.user.findUnique).not.toHaveBeenCalled();
     });
 
     it('未传入授权时间时从数据库读取', async () => {
-        mocks.user.findUnique.mockResolvedValue({ aiDataConsentAt: new Date() });
+        mocks.user.findUnique.mockResolvedValue({ aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') });
         await expect(hasAiDataConsent({ id: 'u1' })).resolves.toBe(true);
         expect(mocks.user.findUnique).toHaveBeenCalledWith({ where: { id: 'u1' }, select: { aiDataConsentAt: true } });
     });
@@ -56,12 +56,12 @@ describe('AI 数据授权（服务端）', () => {
     });
 
     it('已授权时按原逻辑检查额度并记录用量', async () => {
-        await expect(consumeAiQuota({ id: 'u1', aiDataConsentAt: new Date() }, 'analyze')).resolves.toBeNull();
+        await expect(consumeAiQuota({ id: 'u1', aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') }, 'analyze')).resolves.toBeNull();
         expect(mocks.aiUsage.create).toHaveBeenCalledWith({ data: { userId: 'u1', kind: 'analyze' } });
 
         mocks.config = { aiDailyLimit: 1 };
         mocks.aiUsage.count.mockResolvedValue(1);
-        const limited = await consumeAiQuota({ id: 'u1', role: 'user', aiDataConsentAt: new Date() }, 'analyze');
+        const limited = await consumeAiQuota({ id: 'u1', role: 'user', aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') }, 'analyze');
         expect(limited?.status).toBe(429);
         await expect(quotaRejectionCode(limited!)).resolves.toBe('AI_DAILY_LIMIT_EXCEEDED');
     });

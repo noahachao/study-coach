@@ -60,9 +60,9 @@ beforeEach(async () => {
     await database.externalAccount.deleteMany();
     await database.aiUsage.deleteMany();
     await database.user.deleteMany();
-    admin = await database.user.create({ data: { email: 'admin@example.com', password: 'x', role: 'admin', aiDataConsentAt: new Date() } });
-    alice = await database.user.create({ data: { email: 'alice@example.com', password: 'x', aiDataConsentAt: new Date() } });
-    bob = await database.user.create({ data: { email: 'bob@example.com', password: 'x', aiDataConsentAt: new Date() } });
+    admin = await database.user.create({ data: { email: 'admin@example.com', password: 'x', role: 'admin', aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') } });
+    alice = await database.user.create({ data: { email: 'alice@example.com', password: 'x', aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') } });
+    bob = await database.user.create({ data: { email: 'bob@example.com', password: 'x', aiDataConsentAt: new Date('2025-06-01T00:00:00.000Z') } });
 });
 
 afterAll(async () => {

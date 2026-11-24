@@ -71,7 +71,7 @@ describe('/api/admin/users', () => {
                     email: 'user1@example.com',
                     role: 'user',
                     isActive: true,
-                    createdAt: new Date(),
+                    createdAt: new Date('2025-06-01T00:00:00.000Z'),
                     _count: { errorItems: 5, practiceRecords: 10 },
                 },
                 {
@@ -80,7 +80,7 @@ describe('/api/admin/users', () => {
                     email: 'user2@example.com',
                     role: 'user',
                     isActive: false,
-                    createdAt: new Date(),
+                    createdAt: new Date('2025-06-01T00:00:00.000Z'),
                     _count: { errorItems: 0, practiceRecords: 0 },
                 },
             ];

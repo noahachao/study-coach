@@ -1,0 +1,142 @@
+{
+  "e2e/auth-flow.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "e2e/data-backup.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "e2e/error-detail.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 4
+    }
+  },
+  "e2e/notebook-management.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "e2e/question-numbering.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "e2e/review.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "e2e/stats-and-print.spec.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/integration/duplicate-import.test.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/integration/error-items.test.ts": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/__tests__/integration/import-batches.test.ts": {
+    "no-restricted-syntax": {
+      "count": 8
+    }
+  },
+  "src/__tests__/integration/import-tasks.test.ts": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/__tests__/integration/minimax-code.test.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/integration/practice.test.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/__tests__/integration/review-scale.test.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/integration/stats.test.ts": {
+    "no-restricted-syntax": {
+      "count": 5
+    }
+  },
+  "src/__tests__/integration/telemetry-outbox.test.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/ai/base-provider.test.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/ai/concurrency.test.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/background-tasks.test.ts": {
+    "no-restricted-syntax": {
+      "count": 3
+    }
+  },
+  "src/__tests__/unit/error-list-query.test.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/__tests__/unit/exam-question-regenerate.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/minimax-code/api.test.ts": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/minimax-code/auth.test.ts": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/__tests__/unit/regenerate-answer-button.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/regenerate-figure-button.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  },
+  "src/__tests__/unit/use-draft-text-fix.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/use-question-import.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 1
+    }
+  },
+  "src/__tests__/unit/use-running-task.test.tsx": {
+    "no-restricted-syntax": {
+      "count": 2
+    }
+  }
+}

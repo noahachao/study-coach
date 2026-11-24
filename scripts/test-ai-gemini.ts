@@ -9,6 +9,7 @@
  * 用途：用于验证 Gemini API 配置是否正确以及核心功能是否可用。
  */
 import { GeminiProvider } from "../src/lib/ai/gemini-provider";
+import { getErrorMessage } from "../src/lib/error-message";
 import dotenv from "dotenv";
 import path from "path";
 
@@ -35,8 +36,8 @@ async function testGemini() {
             "easy"
         );
         console.log("generateSimilarQuestion Success!");
-    } catch (error: any) {
-        console.error("generateSimilarQuestion Failed:", error.message);
+    } catch (error) {
+        console.error("generateSimilarQuestion Failed:", getErrorMessage(error));
     }
 
     try {
@@ -53,9 +54,9 @@ async function testGemini() {
         } else {
             console.error("Test image not found at:", imagePath);
         }
-    } catch (error: any) {
+    } catch (error) {
         console.error("analyzeImage Failed!");
-        console.error("Error Message:", error.message);
+        console.error("Error Message:", getErrorMessage(error));
     }
 }
 

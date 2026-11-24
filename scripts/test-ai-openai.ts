@@ -9,6 +9,7 @@
  * 用途：用于验证 OpenAI (或兼容接口) 配置是否正确以及核心功能是否可用。
  */
 import { OpenAIProvider } from "../src/lib/ai/openai-provider";
+import { getErrorMessage } from "../src/lib/error-message";
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
@@ -45,9 +46,9 @@ async function testOpenAI() {
         );
         console.log("Success! Response:");
         console.log(JSON.stringify(result, null, 2));
-    } catch (error: any) {
-        console.error("Test 1 Failed:", error.message);
-        if (error.cause) console.error("Cause:", error.cause);
+    } catch (error) {
+        console.error("Test 1 Failed:", getErrorMessage(error));
+        if (error instanceof Error && 'cause' in error) console.error("Cause:", error.cause);
     }
 
     // Test 2: Analyze Image
@@ -75,9 +76,9 @@ async function testOpenAI() {
         const result = await provider.analyzeImage(base64Image, "image/png", "zh");
         console.log("Success! Response:");
         console.log(JSON.stringify(result, null, 2));
-    } catch (error: any) {
-        console.error("Test 2 Failed:", error.message);
-        if (error.cause) console.error("Cause:", error.cause);
+    } catch (error) {
+        console.error("Test 2 Failed:", getErrorMessage(error));
+        if (error instanceof Error && 'cause' in error) console.error("Cause:", error.cause);
     }
 }
 

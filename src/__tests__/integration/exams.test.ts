@@ -738,7 +738,7 @@ describe('/api/exams', () => {
 
             const first = regenerate({ mode: 'question', language: 'zh' });
             // 让第一次请求先完成 reserve + quota 检查
-            await new Promise((resolve) => setTimeout(resolve, 0));
+            await Promise.resolve();
 
             const second = await regenerate({ mode: 'question', language: 'zh' });
             expect(second.status).toBe(409);
