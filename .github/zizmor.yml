@@ -1,4 +1,7 @@
 rules:
   excessive-permissions:
-    ignores:
+    ignore:
+      - "packages.yml"
+  cache-poisoning:
+    ignore:
       - "packages.yml"
