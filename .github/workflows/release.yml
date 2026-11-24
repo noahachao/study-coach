@@ -32,8 +32,10 @@ jobs:
 
       - name: Check if release version (no pre-release suffix)
         id: is_release
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
-          if [[ "${{ steps.version.outputs.tag }}" == *-* ]]; then
+          if [[ "$TAG" == *-* ]]; then
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
           else
             echo "prerelease=false" >> "$GITHUB_OUTPUT"

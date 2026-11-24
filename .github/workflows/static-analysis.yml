@@ -1,4 +1,4 @@
-name: Static analysis (observe-only)
+name: Static analysis
 
 on:
   workflow_dispatch:
@@ -18,27 +18,33 @@ permissions:
   contents: read
 
 jobs:
+  workflow-lint:
+    name: Workflow lint (actionlint + zizmor)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: actionlint
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          "$(go env GOPATH)/bin/actionlint" -color .github/workflows/*.yml
+
+      - name: zizmor
+        run: |
+          python3 -m pip install --quiet --user zizmor==1.33.1
+          export PATH="$HOME/.local/bin:$PATH"
+          zizmor --min-severity high .github/workflows
+
   static:
-    name: Static analysis
+    name: Language checks (observe-only)
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Workflow lint (actionlint)
-        run: |
-          set +e
-          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
-          "$(go env GOPATH)/bin/actionlint" -color .github/workflows/*.yml
-          exit 0
-
-      - name: Workflow security (zizmor)
-        run: |
-          set +e
-          python3 -m pip install --quiet --user zizmor==1.33.1
-          export PATH="$HOME/.local/bin:$PATH"
-          zizmor --format plain .github/workflows
-          exit 0
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         if: ${{ hashFiles('package.json') != '' }}

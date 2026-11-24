@@ -21,6 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
       - name: Check public history before continuing CI
         run: |
@@ -34,6 +35,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: 检查签名文件验证与异常拦截
         shell: pwsh
         run: ./tests/packaging/test-windows-signatures.ps1
@@ -118,13 +121,13 @@ jobs:
       - name: Write coverage summary
         if: always()
         run: |
-          node -e '
+          node <<'JS'
           const fs = require("fs");
           if (!fs.existsSync("coverage/coverage-summary.json")) process.exit(0);
           const { total } = JSON.parse(fs.readFileSync("coverage/coverage-summary.json", "utf8"));
           const rows = ["statements", "branches", "functions", "lines"].map((k) => `| ${k} | ${total[k].pct}% | ${total[k].covered}/${total[k].total} |`);
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, ["### 测试覆盖率（src/lib、src/app/api）", "", "| 指标 | 覆盖率 | 覆盖数 |", "| --- | --- | --- |", ...rows, ""].join("\n"));
-          '
+          JS
 
       - name: Upload coverage report
         if: always()
